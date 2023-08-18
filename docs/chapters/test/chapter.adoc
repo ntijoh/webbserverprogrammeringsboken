@@ -1,0 +1,8 @@
+:imagesdir: chapters/test/images
+
+
+= Chapter Title Goes Here
+
+Wut?
+
+image::logo.png[Sinatra Logo]

@@ -1,0 +1,13 @@
+:toc: 
+:icons: font
+:source-highlighter: rouge
+:docinfo: private-head
+:sourcedir: docs/chapters
+:imagesdir: img
+:code_lang: ruby
+:!figure-caption:
+:hide-uri-scheme:
+
+= Title Goes Where?
+
+include::chapters/test/chapter.adoc[leveloffset=+1]
