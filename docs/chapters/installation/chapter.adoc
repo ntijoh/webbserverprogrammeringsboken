@@ -1,0 +1,41 @@
+:imagesdir: chapters/installation/images
+
+= Installation och konfigurering
+
+[discrete]
+== Windows Terminal
+
+Windows Terminal är en bättre terminal än Windows Command Prompt (cmd). 
+https://apps.microsoft.com/store/detail/windows-terminal/9N0DX20HK701[Installera från Microsoft Store]
+
+[discrete]
+== WSL
+
+I stort sett all webbserverprogrammering sker nuförtiden på Linux- eller linux-kompatibla operativsystem. 
+Därför utgår de flesta guider och bibliotek (samlingar med kod som utvecklare kan använda) från linux.
+
+Eftersom Windows inte är ett linuxkompatibelt operativsystem kommer vi installera WSL - Windows Subsystem for Linux.
+WSL är ett sätt att köra virtuella Linuxmaskiner parallelt med Windows.
+
+https://drive.google.com/file/d/1mlI0Yr1ehERsMyb7Ed0RRuG_zm8KeBJ5/view?usp=drive_link[Ladda ner kursens Linux-image] (finns även i Classroom). Spara filen som wsp.tar i mappen du skapat för kursen.
+
+Starta Windows Terminal som administratör (högerklicka på ikonen och väl "Starta som Administratör")
+Navigera till mappen i Windows Terminal och kör nedanstående kommandon, ett i taget.
+
+[source, powershell] 
+----
+dism /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart # <1>
+dism /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart # <2>
+
+wsl --update # <3>
+wsl --set-default-version 2 # <4>
+wsl --unregister Ubuntu # <5>
+
+wsl --import WSP . .\wsp.tar # <6>
+----
+<1> Aktivera WSL
+<2> Aktivera stöd för Virtuella Maskiner
+<3> Installera senaste versionen av WSL
+<4> Använd WSL version 2 (den senaste)
+<5> Avinstallera Ubuntu (om du redan haft det installerat)
+<6> Installera den förkonfigurerade Linuxmaskinen

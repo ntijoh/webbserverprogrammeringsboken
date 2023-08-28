@@ -1,4 +1,4 @@
-:toc: 
+:toc: left
 :icons: font
 :source-highlighter: rouge
 :docinfo: private-head
@@ -7,7 +7,9 @@
 :code_lang: ruby
 :!figure-caption:
 :hide-uri-scheme:
+:experimental:
+:book:
 
-= Title Goes Where?
+= Webbserverprogrammeringsboken
 
-include::chapters/test/chapter.adoc[leveloffset=+1]
+include::chapters/installation/chapter.adoc[leveloffset=+1]
