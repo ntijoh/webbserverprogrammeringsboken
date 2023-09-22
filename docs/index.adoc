@@ -1,6 +1,6 @@
 :toc: left
 :icons: font
-:source-highlighter: rouge
+:source-highlighter: coderay
 :docinfo: private-head
 :sourcedir: docs/chapters
 :imagesdir: img
@@ -12,4 +12,9 @@
 
 = Webbserverprogrammeringsboken
 
+include::chapters/requests_and_routing/chapter.adoc[leveloffset=+1]
+include::chapters/templates/chapter.adoc[leveloffset=+1]
+include::chapters/filstruktur/chapter.adoc[leveloffset=+1]
+include::chapters/linux/chapter.adoc[leveloffset=+1]
 include::chapters/installation/chapter.adoc[leveloffset=+1]
+

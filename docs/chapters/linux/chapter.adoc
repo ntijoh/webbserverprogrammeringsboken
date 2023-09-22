@@ -1,0 +1,18 @@
+= Linux
+
+[glossary]
+[discrete]
+== Kommandon
+
+[glossary]
+cat:: Används för att visa innehållet i en fil `cat app.rb`
+cd:: Navigera mellan mappar. Fungerar som i Windows, men blanksteg krävs vid `cd ..`
+ctrl+c:: Avbryter den process som körs för stunden.
+killall:: Används för att avbryta en process som körs i bakgrunden: `killall ruby`.
+ls:: Lista filer i nuvarande mapp (som `dir` i Windows).
+mkdir:: Skapar en mapp i den aktuella sökvägen: `mkdir grillkorv`
+pwd:: Skriv ut sökvägen till aktuell mapp.
+rm:: Tar bort en fil (obs den hamnar EJ i papperskorgen): `rm grillkorv.rb`
+su:: Används för att byta användare: `su wsl` byter till användaren "wsl". Gör detta om du ser typ `root@********:/mnt....` i terminalen (då bör du se `→ wsp` istället)
+sudo:: Används för att köra kommandom med root- (administratörs-)behörighet ex `sudo killall ruby`.
+touch:: Skapar en ny tom fil `touch grillkorv.rb`

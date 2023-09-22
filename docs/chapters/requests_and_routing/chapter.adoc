@@ -1,0 +1,62 @@
+:imagesdir: chapters/routing/images
+
+
+= Requests & Routing
+
+Webbapplikationer fungerar genom att en klient (webbläsare) kommunicerar med en server (i vårt fall Sinatra) med hjälp av protokollet HTTP.
+
+I HTTP finns det två typer av meddelanden: HTTP *Request* och HTTP *Response*
+
+Förenklat sker kommunikationen enligt följande: 
+
+* En webbläsare skickar en HTTP request efter en viss _resurs_ på servern.
+* Servern kollar sen om resursen finns. 
+** Om resursen finns skickar servern en HTTP response med status 200 och vad nu resursen innerhåller för data (t.ex html).
+** Om resursen inte finns skickar servern en HTTP response med status 404 (och eventuellt html som visar ett fint felmeddelande).
+* Klienten tolkar sen responsen (t.ex ritar upp HTML på skärmen)
+
+
+[NOTE] 
+.Resurs
+====
+En _resurs_ kan vara t.ex en bild, en css- eller javascript-fil, men det kan också vara en "sida" på en site: t.ex. \https://www.fruit-o-matic.com**/fruits** eller \https://fruit-o-matic.com**/fruits/apples/3/** där `/fruits` respektive `/fruits/apples/3` är resursen. En resurs är "R:et" i `URL`: Universal *Resource* Locator.
+==== 
+
+[discrete]
+== Sekvensdiagram
+
+För att beskriva hur en HTTP Request/Response går till brukar man använda https://en.wikipedia.org/wiki/Sequence_diagram[sekvensdiagram]
+
+.Ett utförligt sekvensdiagram som beskriver en lyckad request efter resursen /fruits
+[mermaid,theme=neutral]
+....
+sequenceDiagram
+    participant User
+    participant Browser
+    participant Rack
+    participant Sinatra
+    User->>Browser: Go to <br>'https://fruit-o-matic.com/fruits'
+    Browser->>Rack: HTTP Request <br> 'GET /fruits HTTP/1.1...'
+    Rack->Sinatra: get('/fruits')
+    Sinatra-->>Sinatra: Match against routes in app.rb
+    Sinatra-->>Sinatra: Render template fruits/index.erb
+    Sinatra->>Rack: 200, '!doctype html <html><head>...'
+    Rack->>Browser: HTTP RESPONSE <br> 'HTTP/1.1 200 OK...'
+    Browser-->>Browser: Render Page
+    Browser->>User: Rendered Page
+    User-->>User: Wow, such beautiful fruits!
+....
+
+Sekvensdiagrammet ovan är onödigt detaljerat, i fortsättningen kommmer vi ta bort de komponenter vi ändå inte har kontroll över. Ett sekvensdiagram för motsvarande aktivitet ser då ut som nedan:
+
+.Ett mer kompakt sekvensdiagram som beskriver en lyckad request efter resursen /fruits
+[mermaid,theme=neutral]
+....
+sequenceDiagram
+    participant Client
+    participant App
+    Client->>App:  GET /fruits
+    App-->>App: Match route
+    App-->>App: Render template
+    App->>Client: 200, resource
+....

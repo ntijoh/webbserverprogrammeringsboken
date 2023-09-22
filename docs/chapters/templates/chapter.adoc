@@ -1,0 +1,6 @@
+:imagesdir: chapters/templates/images
+
+
+= Templates
+
+En _template_ (svenska: mall) låter oss blanda text (i vårt fall HTML) och Ruby-kod.

@@ -1,0 +1,101 @@
+= Filstruktur
+
+Ett Sinatraprojekt innehåller följande filer och mappar:
+
+[source]
+----
+fruit-o-Matic <1>
+|
+├── Gemfile
+├── Gemfile.lock
+├── app.rb
+├── config.ru
+├── public
+│   ├── css
+│   │   └── style.css
+│   ├── img
+│   │   └── fruit.png
+│   └── js
+│       └── script.js
+└── views 
+    ├── fruits
+    │   ├── index.erb
+    │   └── show.erb
+    ├── index.erb
+    └── layout.erb
+----
+<1> Varje Sinatraprojekt måste ligga i en egen mapp, i det här fallet `fruit-o-matic`.
+
+[discrete]
+== Gemfile & Gemfile.lock
+
+`Gemfile` berättar vilka bibliotek (i Ruby kallas biblioteken för "gems") vår applikation behöver.
+
+För att installera biblioteken som finns i `Gemfile` kör man kommandot `bundle install` i terminalen i samma mapp som `Gemfile` ligger.
+
+När man kör `bundle install` kommer filen `Gemfile.lock` skapas. Den innehåller vilken version av biblioteken som installerades.
+
+[source, ruby]
+.Gemfile
+----
+source 'https://rubygems.org' <1>
+
+gem 'thin' <2>
+gem 'sinatra' <2>
+gem 'rerun' <2>
+----
+<1> Talar om för bundler var biblioteken vi ska använda finns.
+<2> Vilka gems (bibliotek) som ska installeras
+
+[discrete]
+== app.rb
+
+I `app.rb` skapar vi vår applikation och definerar våra routes.
+
+[source, ruby,linenums]
+.app.rb
+----
+class App < Sinatra::Base <1>
+
+    get '/' do <2>
+        erb :index
+    end
+
+    get '/fruits' do <3>
+        erb :'fruits/index'
+    end
+
+end
+----
+<1> Talar om att filen innehåller en Sinatra-applikation.
+<2> Gör så att innehållet i `views/index.erb` renderas när man surfar till root-url:en ('/').
+<3> Gör så att innehållet i `views/fruit/index.erb` renderas när man surfar till '/fruits'.
+
+[discrete]
+== config.ru 
+
+`config.ru` nvänds av `rackup` för att starta applikationen (`ru` i `config.ru` står för `**r**ack**u**p`).
+
+[source, ruby]
+.config.ru
+----
+require 'bundler' <1>
+Bundler.require   <2>
+require_relative 'app' <3>
+run App <4>
+----
+<1> Gör så vi kan använda bundler för att läsa in biblioteken i `Gemfile`.
+<2> Läser in biblioteken i `Gemfile`.
+<3> Läser in `app.rb`,
+<4> Säger till `rackup` att starta applikationen App från `app.rb` (se rad 1 i `app.rb`).
+
+[discrete]
+== public-mappen
+
+I `public`-mappen lägger man statiska resurser som bilder, css och js - oftast i separata undermappar så det inte blir för rörigt.
+
+[discrete]
+== views-mappen 
+
+I `views`-mappen lägger man sina templates/mallar - ofta i separata undermappar så det inte blir för rörigt när man har flera resurser i sin app.
+

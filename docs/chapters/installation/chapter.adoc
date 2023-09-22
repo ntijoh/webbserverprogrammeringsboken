@@ -11,8 +11,8 @@ https://apps.microsoft.com/store/detail/windows-terminal/9N0DX20HK701[Installera
 [discrete]
 == WSL
 
-I stort sett all webbserverprogrammering sker nuförtiden på Linux- eller linux-kompatibla operativsystem. 
-Därför utgår de flesta guider och bibliotek (samlingar med kod som utvecklare kan använda) från linux.
+I stort sett all webbserverprogrammering sker nuförtiden på Linux- eller linux-kompatibla operatisystem. 
+Därför är de flesta guider och bibliotek (samlingar med kod som utvecklare kan använda) skrivna för Linux.
 
 Eftersom Windows inte är ett linuxkompatibelt operativsystem kommer vi installera WSL - Windows Subsystem for Linux.
 WSL är ett sätt att köra virtuella Linuxmaskiner parallelt med Windows.
@@ -28,14 +28,55 @@ dism /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all
 dism /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart # <2>
 
 wsl --update # <3>
-wsl --set-default-version 2 # <4>
-wsl --unregister Ubuntu # <5>
-
-wsl --import WSP . .\wsp.tar # <6>
 ----
 <1> Aktivera WSL
 <2> Aktivera stöd för Virtuella Maskiner
 <3> Installera senaste versionen av WSL
-<4> Använd WSL version 2 (den senaste)
-<5> Avinstallera Ubuntu (om du redan haft det installerat)
-<6> Installera den förkonfigurerade Linuxmaskinen
+
+Om `wsl --update` inte fungerar (märks genom att bara instruktionerna för hur wsl används skrivs ut) har du en för gammal version av Windows. Hämta uppdateringar genom att
+
+1. Öppna `Inställningar` > `Updateringar & Säkerhet` > `Windows Update`
+2. Klicka på "Avancerade Alternativ" (längst ner)
+3. Sätt på "Hämta uppdateringar för andra Microsoft-produkter när jag uppdaterar Windows"
+4. Gå tillbaks till föregående skärm i inställningar och Klicka på "Check for updates", "Ladda ner" och vänta på att uppdateringarna laddas ner och installeras.
+5. Starta om Windows en eller flera gånger allteftersom du blir ombedd. Detta kan ta låång tid och även misslyckas. Prata med mig i så fall.
+
+Slutligen
+
+[source, powershell]
+----
+wsl --set-default-version 2 # <1>
+wsl --unregister Ubuntu # <2>
+wsl --import WSP . .\wsp.tar # <3>
+----
+<1> Använd WSL version 2 (den senaste)
+<2> Avinstallera Ubuntu (om du redan haft det installerat)
+<3> Installera den förkonfigurerade Linuxmaskinen
+
+(Verkligen) slutligen:
+
+Starta den virtuella maskinen: `wsl`.
+
+[discrete]
+== Visual Studio Code
+
+[discrete]
+=== Extensions
+
+Installera följande extension: `Remote Development` (av Microsoft).
+
+Koppla upp Visual Studio Code mot wsl:
+
+image::vsc1.png[Koppla upp mot WSL]
+
+Du bör sen se `WSL:WSP` längst ner till vänster:
+
+image::vsc2.png[Uppkopplad mot WSL]
+
+
+Installera följande extensions:
+
+* Ruby (av Peng Lv)
+* erb (av Craig Maslowski)
+* Slim (av Siang Lim )
+* Ruby Solargraph (av Castwide)
