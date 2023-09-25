@@ -104,7 +104,7 @@ end
 <2> Konfigurerar en `Route` för resursen "/"
 <3> Konfigurerar en `Route` för resursen "/fruits"
 
-När en Sinatra-applikation tar emot en request från en klient söker den efter en _route_ som matchar requestens _verb_ (`GET` eller `POST`) och dess resurst (t.ex `/fruits`). Koden i första routen som matchar kommer att köras, och resultatet läggs i ett `HTTP Response` och skickas tillbaks till klienten som skickat Requesten.
+När en Sinatra-applikation tar emot en request från en klient söker den efter en _route_ som matchar requestens _verb_ (`GET` eller `POST`) och dess resurs (t.ex `/fruits`). Koden i första routen som matchar kommer att köras, och resultatet läggs i ett `HTTP Response` och skickas tillbaks till klienten som skickat Requesten.
 
 Man kan låtsas att routes i en Sinatra-app fungerar som en lång if-elsif-else-sats, enligt nedan:
 
