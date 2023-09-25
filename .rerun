@@ -1,0 +1,2 @@
+--exit
+--pattern **/*.{adoc,png,gif,jpg,jpeg}
