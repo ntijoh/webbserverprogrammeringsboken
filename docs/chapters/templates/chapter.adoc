@@ -3,4 +3,101 @@
 
 = Templates
 
-En _template_ (svenska: mall) låter oss blanda text (i vårt fall HTML) och Ruby-kod.
+En _template_ (svenska: mall) låter oss blanda text (i vårt fall HTML) och Ruby-kod. Man kan skriva templates i template-språket *ERB* (**E**mbedded **R**u**b**y).
+
+[WARNING] 
+.Variabler från routes
+====
+För att variabler definerade i en route ska vara tillgängliga i en mall behöver variabeln vara en så-kallad _instansvariabel_. En instansvariabel skapas genom att man sätter ett `@` framför variabelns namn, t.ex  `@weather` eller `@city`.
+
+[source, ruby, linenums]
+.En route med instansvariabel
+----
+get '/weather/:city' do |city|
+    @city = city <1>
+    precipitation = 100 <2>
+    erb :weather
+end
+----
+<1> `@city` kommer gå att använda inne i erb-mallen
+<2> `precipitation` kommer inte gå att använde i erb-mallen.
+==== 
+
+I en ERB-fil skriver man HTML som vanligt, och där man vill använda Ruby-kod omger man den med `<%= din_kod_här %>` eller `<% din_kod_här %>`.
+
+Skillnaden mellan kodblock som börjar med `<%=` och `<%` är att resultatet av block som börjar med `<%=` kommer visas på sidan, medans resultatet av block som börjar med `<%` _inte_ kommer visas på sidan, men koden kommer att köras.
+
+[source, erb,linenums]
+.En erb-mall med två kodblock
+----
+<h1>3 + 1 blir <%= 3 + 1 %></h1> <1>
+<h1>3 + 1 blir <%  3 + 1 %></h1> <2>
+----
+<1> Resultatet kommer synas på sidan.
+<2> Resultatet kommer _inte_ synas på sidan.
+
+[source, html,linenums]
+.Föregående erb-mall kommer renderas till följande HTML
+----
+<h1>3 + 1 blir 4</h1>
+<h1>3 + 1 blir </h1> 
+----
+
+`<% %>` (utan `=`) används framförallt för loopar och if-satser, där själva if-satsen eller loopen inte ska visas på sidan. Inuti loopen eller if-satsen använder man `<%= %>` för att visa innehåll
+
+[source, erb,linenums]
+.En erb-mall med en if-sats
+----
+<% if @weather == 'raining'> <1>
+    <img src='/img/rain.png'> <2>
+    <span>Nederbörd: <%= @precipitation %> mm</span> <3>
+<% end %> <4>
+----
+<1> Själva if-satsen ska inte synas på sidan, därför används `<% ... %>`.
+<2> Allt mellan `if`-blocket och `end-blocket` kommer visas på sidan om if-satsen är `true`. Om den är false, kommer _inget_ visas.
+<3> `<%= ... %>` används eftersom innehållet i variabeln ska visas.
+<4> `end` ska inte visas på sidan, därför används `<% ... %>`.
+
+[source, html,linenums]
+.Föregående mall renderad till HTML (om `@weather`  är 'raining' och `@precipitation` är 3)
+----
+<img src='/img/rain.png'>
+<span>Nederbörd: 3 mm</span>
+----
+
+[source, erb,linenums]
+.En erb-mall med en each-loop
+----
+<ol>
+    <% @cities.each do |city| %><1>
+        <li>
+            <h3><%= city.capitalize %></h3><2>
+            <img src='/img/<%= city.downcase %>.png'><2>
+        </li>
+    <% end %> <3>
+</ol>
+----
+<1> Själva each-loopen ska inte synas på sidan, därför används `<% ... %>`.
+<2> Allt mellan `each`-blocket och `end-blocket` kommer visas på sidan för varje grej i `@cities`
+<3> `<%= ... %>` används eftersom resultatet av koden ska visas.
+<4> `end` ska inte visas på sidan, därför används `<% ... %>`.
+
+
+[source, html,linenums]
+.Föregående mall renderad till HTML (om `@cities` är `['copenhagen', 'gothenburg', 'OSLO']`)
+----
+<ol>
+    <li>
+        <h3>Copenhagen</h3>
+        <img src='/img/copenhagen.png'
+    </li>
+    <li>
+        <h3>Gothenburg</h3>
+        <img src='/img/gothenburg.png'
+    </li>
+    <li>
+        <h3>Oslo</h3>
+        <img src='/img/oslo.png'
+    </li>
+</ol>
+----
