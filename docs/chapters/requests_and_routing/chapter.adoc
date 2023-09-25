@@ -1,5 +1,4 @@
-:imagesdir: chapters/routing/images
-
+:imagesdir: chapters/requests_and_routing/images
 
 = Requests & Routing
 
@@ -22,10 +21,15 @@ Förenklat sker kommunikationen enligt följande:
 En _resurs_ kan vara t.ex en bild, en css- eller javascript-fil, men det kan också vara en "sida" på en site: t.ex. \https://www.fruit-o-matic.com**/fruits** eller \https://fruit-o-matic.com**/fruits/apples/3/** där `/fruits` respektive `/fruits/apples/3` är resursen. En resurs är "R:et" i `URL`: Universal *Resource* Locator.
 ==== 
 
+En webbapplikation skickar _aldrig_ information utan att den blivit ombedd. För att skicka information till en webbläsare måste webbläsaren först fråga efter informationen. Detta innebär att all kommunikation mellan en webbserver och en webbläsare alltid börjar med en `Request` från en klient (webbläsaren) och slutar med en `Response` från servern.
+
+
 [discrete]
 == Sekvensdiagram
 
 För att beskriva hur en HTTP Request/Response går till brukar man använda https://en.wikipedia.org/wiki/Sequence_diagram[sekvensdiagram]
+
+Sekvensdiagram beskriver hur olika _komponenter_ (t.ex webbläsare och sinatra-server) skickar "meddelanden" till varandra. Meddelanden visas som text ovanför pilar som går från sändare till mottagare.
 
 .Ett utförligt sekvensdiagram som beskriver en lyckad request efter resursen /fruits
 [mermaid,theme=neutral]
@@ -47,7 +51,7 @@ sequenceDiagram
     User-->>User: Wow, such beautiful fruits!
 ....
 
-Sekvensdiagrammet ovan är onödigt detaljerat, i fortsättningen kommmer vi ta bort de komponenter vi ändå inte har kontroll över. Ett sekvensdiagram för motsvarande aktivitet ser då ut som nedan:
+Sekvensdiagrammet ovan är onödigt detaljerat, i fortsättningen kommmer vi inte visa de komponenter vi ändå inte har kontroll över. Ett sekvensdiagram för motsvarande aktivitet ser då ut som nedan:
 
 .Ett mer kompakt sekvensdiagram som beskriver en lyckad request efter resursen /fruits
 [mermaid,theme=neutral]
@@ -60,3 +64,136 @@ sequenceDiagram
     App-->>App: Render template
     App->>Client: 200, resource
 ....
+
+Det finns två typer av `HTTP Requests` som en webbläsare kan skicka (det finns egentligen fler, men det är bara dessa två som är relevanta för kursen Webbserverprogrammering 1):
+
+[discrete]
+==== HTTP GET Request
+
+En `HTTP GET Request` ber om att få en specifik `resurs` på servern, men kan inte skicka med någon data till servern.
+
+[discrete]
+==== HTTP POST Request
+
+En `HTTP POST Request` skickar data (från t.ex. ett HTML-formulär) till servern.
+
+
+[discrete]
+== Routing
+
+Eftersom en webbserver aldrig gör något om den inte fått en `Request` är Requests centrala i en Sinatra-applikation.
+
+I `app.rb` skrivar man sina _routes_, dvs regler som bestämmar vilka resurser som finns på servern och vad den ska göra om den får en HTTP Request (GET eller POST) till en specifik resurs.
+
+[source, ruby,linenums]
+.app.rb
+----
+class App < Sinatra::Base <1>
+
+    get '/' do <2>
+        erb :index
+    end
+
+    get '/fruits' do <3>
+        erb :'fruits/index'
+    end
+
+end
+----
+<1> Talar om att filen innehåller en Sinatra-applikation.
+<2> Konfigurerar en `Route` för resursen "/"
+<3> Konfigurerar en `Route` för resursen "/fruits"
+
+När en Sinatra-applikation tar emot en request från en klient söker den efter en _route_ som matchar requestens _verb_ (`GET` eller `POST`) och dess resurst (t.ex `/fruits`). Koden i första routen som matchar kommer att köras, och resultatet läggs i ett `HTTP Response` och skickas tillbaks till klienten som skickat Requesten.
+
+Man kan låtsas att routes i en Sinatra-app fungerar som en lång if-elsif-else-sats, enligt nedan:
+
+[source, ruby,linenums]
+.pseudokod som beskriver en *tankemodell* för hur routing fungerar
+----
+    if verb == "GET" && resource == "/"
+        return erb(:index)
+    elsif verb == "GET" && resource == '/fruits'
+        return erb(:'fruits/index')
+    elsif File.exist?("./public#{resource}")
+        return File.read("./public#{resource}")
+    else
+        return (404, "Not Found")
+    end
+----
+
+Det är inte så det är implementerat _egentligen_, men tankemodellen fungerar när man ska bestämma vilka routes man ska ha och i vilken ordning i de behöver finnas i.
+
+Det finns två typer av routes:
+
+[discrete]
+=== Statiska Routes
+
+En statisk route innehåller inga dynamiska bitar, det vill säga, den request som kommer måste matcha *exakt* mot routen som den är skriven i Sinatra.
+
+[source, ruby,linenums]
+.Tre statiska routes
+----
+    get '/' do <1>
+        ... #Lämplig kod
+    end
+
+    get '/weather' do <2>
+        ... #Lämplig kod
+    end
+
+    post '/weather' do <3>
+        ... #Lämplig kod
+    end
+----
+<1> Matchar `HTTP **GET** Requests` till `/`
+<2> Matchar `HTTP **GET** Requests` till `/weather`
+<3> Matchar `HTTP **POST** Requests` till `/weather`
+
+[discrete]
+=== Dynamiska Routes
+
+En dynamisk route är en route där _delar_ av routen kan skilja från den route som är skriven.
+En dynamisk route skapas genom att man ersätter den bit av routen som ska vara dynamisk med ett kolon (`:`) följt av en beskrivande ord.
+
+[source, ruby,linenums]
+.En dynamisk route
+----
+    get '/weather/:city' do <1>
+        ... #Lämplig kod
+    end
+----
+<1> Matchar `HTTP **GET** Requests` till `/weather/*VADSOMHELST*/, t.ex `/weather/goteborg` eller `/weather/oslo` eller `/weather/3`
+
+Eftersom man antagligen vill veta vad det var för värde som låg på den dynamiska biten i requesten behöver man fånga upp den.
+
+[source, ruby,linenums]
+.En dynamisk route som faktiskt fångar upp den dynamiska **parametern**
+----
+    get '/weather/:city' do |city| <1>
+        ... #Lämplig kod
+    end
+----
+<1> Variabeln `city` innehåller nu vad som fanns på motsvarande ställe i requesten, text "goteborg", "oslo" eller "3".
+
+[WARNING] 
+.Siffror i dynamiska routes
+====
+Det som lagras i variabeln som fångar upp en parameter från en dynamisk route kommer **alltid** vara en sträng, även om det innehåller siffror.
+Om applikationen förnväntar sig ett tal (integer) behöver man omvandla siffran till en integer med `.to_i`
+==== 
+
+[source, ruby,linenums]
+.En dynamisk route med två **parametrar**
+----
+    get '/weather/:city/temperature/:date' do |location, date| <1>
+        ... #Lämplig kod
+    end
+----
+<1> När man har flera _parametrar_ i en dynamisk route mappas parametrar till variabler i den ordning de kommer. Om requesten är `GET /weather/**goteborg**/temperature/**2023-09-23**` kommer `location` innehålla `'goteborg'` och `date` innehålla `'2023-09-23'`.
+
+[NOTE] 
+.Namngivning av parametrar och variabler i dynamiska routes
+====
+Parametrar (`:city`) och variabler (`location`) _behöver_ inte heta likadant, men det blir ofta förvirrande om de inte gör det.
+==== 
