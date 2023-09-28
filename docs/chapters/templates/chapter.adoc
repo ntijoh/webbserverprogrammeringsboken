@@ -48,7 +48,7 @@ Skillnaden mellan kodblock som börjar med `<%=` och `<%` är att resultatet av 
 [source, erb,linenums]
 .En erb-mall med en if-sats
 ----
-<% if @weather == 'raining'> <1>
+<% if @weather == 'raining' %> <1>
     <img src='/img/rain.png'> <2>
     <span>Nederbörd: <%= @precipitation %> mm</span> <3>
 <% end %> <4>
