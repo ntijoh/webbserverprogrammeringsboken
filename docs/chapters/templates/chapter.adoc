@@ -65,20 +65,20 @@ Skillnaden mellan kodblock som börjar med `<%=` och `<%` är att resultatet av 
 <span>Nederbörd: 3 mm</span>
 ----
 
-[source, erb,linenums]
+[%linenums,erb,highlight=2..7]
 .En erb-mall med en each-loop
 ----
 <ol>
-    <% @cities.each do |city| %><1>
-        <li>
-            <h3><%= city.capitalize %></h3><2>
-            <img src='/img/<%= city.downcase %>.png'><2>
+    <% @cities.each do |city| %> <1>
+        <li> <2>
+            <h3><%= city.capitalize %></h3> <3>
+            <img src='/img/<%= city.downcase %>.png'> <3>
         </li>
-    <% end %> <3>
+    <% end %> <4>
 </ol>
 ----
 <1> Själva each-loopen ska inte synas på sidan, därför används `<% ... %>`.
-<2> Allt mellan `each`-blocket och `end-blocket` kommer visas på sidan för varje grej i `@cities`
+<2> Alla element mellan `each`-blocket och `end-blocket` kommer visas på sidan för varje grej i `@cities`
 <3> `<%= ... %>` används eftersom resultatet av koden ska visas.
 <4> `end` ska inte visas på sidan, därför används `<% ... %>`.
 
