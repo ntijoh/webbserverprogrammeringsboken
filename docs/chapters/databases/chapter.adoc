@@ -3,3 +3,172 @@
 
 = Databaser
 
+En databas är en välorganiserad, det vill säga uppbyggd enligt nedskrivna regler, centraliserad, samling av data.
+
+.**Data** vs **information**.
+[NOTE]
+==== 
+Information är behandlad data - det vill säga data som någon kan använda för att tillföra något slags värde i någon slags process eller sammanhang.
+
+Man kan säga att data blir information när någon tittar på eller behandlar den.
+====
+
+[discrete]
+== Typer av databaser
+
+Det finns i dag två huvudsakliga typer av databaser: *Relationsdatabaser* och *dokument/nod-baserade databaser*. Andra ord som används för att skilja på dessa två typer av databaser är *SQL* (relationella) och *NoSQL* (dokument/nod-baserade).
+
+I den här kursen kommer vi enbart använda oss av SQL-baserade databaser, det vill säga *Relationsdatabaser*.
+
+== Grundläggande terminologi
+
+=== Databashanterare
+
+En Databashanterare/Databashanteringssystem, eller DBMS (Database Management System), är mjukvara som gör det möjligt att på ett effektivt och säkert sätt *definera*, *hämta* och *modifiera* innehåll i en databas.
+
+Man kan inte kommunicera direkt med en databas; all kommunikation sker via en databashanterare.
+
+I den här kursen kommer vi använda oss av *SQLite* som DBMS.
+
+=== Tabeller rader och kolumner
+
+En relationsdatabas består av en eller flera *tabeller* Varje tabell har ett namn, och består av *rader* och *kolumner*.
+
+.Exempel på en tabell för att hålla koll på böcker
+[cols=">1,<3,>1", width="45%"]
+|===
+3+^| *books*
+| *id*  | *title*                   | *page_count*
+|  1    | 'Catch 22'                | 464
+|  2    | 'To Kill a Mockingbird'   | 336
+|  3    | '1984'                    | 328 
+|  4    | 'The Stranger'            | 123
+|=== 
+
+Tabellen ovan har namnet `books`, och har 4 rader och 3 kolumner.
+
+=== Entiteter och tabeller
+En tabell i en databas kallas för en *entitet*
+
+=== Tupler och rader
+Varje rad i tabellen kallas för en *tupel* och beskriver en *post* i tabellen. 
+
+I books-tabellen innehåller varje tupel information om en bok.
+
+=== Attribut och kolumner
+Varje kolumn beskriver en egenskap, eller *attribut* för posten. 
+
+I books-entiteten är `id`, `title` och `page_count` attribut.
+
+.**Attribut måste vara atomära**
+[WARNING]
+====
+Attribut _måste_ vara *atomära*, det vill säga i varje "cell" eller "fält" får det maximalt finnas _ett_ (1) värde - man får t.ex inte lagra flera titlar i en och samma cell. 
+
+.En *felaktig* tabell med icke-atomära värden i phone_number kolumnen.
+[cols=">1,<2,>3", width="70%"]
+|===
+3+^| *contacts*
+| *id*  | *name*             | *phone_number*
+|  1    | 'Hermione Granger' | "555-123 45 67", "555-234 56 78"
+|  2    | 'Ron Weasly'       | "555-234 56 78"
+|=== 
+
+====
+
+== Tabeller och relationer
+
+En relationsdatabas består av tabeller och relationerna mellan tabellerna.
+
+=== Primärnyckel och unika rader
+
+Varje rad i en tabell måste vara unik, det vill säga, i varje tabell får det inte förekomma två rader där samtliga kolumner är identiska.
+
+Detta löses genom att varje tabell har ett attribut som kallas för *primärnyckel* eller *primary key*.
+
+När man skapar tabellen talar man om vilken av attributen som kommer vara primärnyckeln. 
+
+I tabellen ovan har den som skapat tabellen valt attributet `id` som primärnyckel. En primärnyckels värde _måste_ vara unikt för tabellen och kolumnen.
+
+Detta innebär att om någon annan skulle skriva en bok som heter the stranger, och som råkar ha 123 sidor även den kommer raden fortfarande vara unik, eftersom den kommer få en unikt värde på primärnyckeln
+
+.Varje tupel är fortfarande unik, trots att det finns två böcker med samma titel och sidantal.
+[cols=">1,<3,>1", width="45%"]
+|===
+3+^| *books*
+| *id*  | *title*                   | *page_count*
+|  1    | 'Catch 22'                | 464
+|  2    | 'To Kill a Mockingbird'   | 336
+|  3    | '1984'                    | 328 
+|  4    | 'The Stranger'            | 123
+|  5    | 'The Stranger'            | 123
+|=== 
+
+Databashanterarens (SQLite) kontrollerar att varje primärnyckel/tupel är unik.
+
+.Namngivning av primärnyckeln
+[NOTE]
+==== 
+I den här kursen kommer vi:
+
+- *alltid* använda namnet *id* för primärnyckeln, men primärnyckeln _kan_ heta vad som helst.
+- *alltid* använda *automatiskt inkrementerande heltal* för primärnyckeln, men primärnyckeln _kan_ vara vad som helst.
+====
+
+=== Relationer
+
+För att knyta samman två tabeller behöver vi skapa en *relation*, det vill säga, en koppling, mellan dem. 
+
+[cols=">1,<3,>1", width="40%"]
+|===
+3+^| *books*
+| *id*  | *title*                   | *page_count*
+|  1    | 'Catch 22'                | 464         
+|  2    | 'To Kill a Mockingbird'   | 336         
+|  3    | '1984'                    | 328         
+|  4    | 'The Stranger'            | 123         
+|  5    | 'Closing Time'            | 382         
+|  6    | 'Animal Farm'             | 218         
+|  7    | 'The Plague  '            | 312         
+|  8    | 'Coming Up for Air'       | 393         
+|===
+
+
+[cols=">1,<3,<2,<2,>1", width="50%"]
+|===
+5+^| *authors*
+| *id* | *name*            | *nationality* | *birth_year* | *shoe_size*
+|  1   | 'Joseph Heller'   | 'American'    | 1923         | 42
+|  2   | 'Harper Lee'      | 'American'    | 1926         | 36
+|  3   | 'George Orwell'   | 'English'     | 1903         | 41
+|  4   | 'Albert Camus'    | 'French'      | 1913         | 44
+|===
+
+
+I exemplet med böcker och författare behöver vi skapa en *en-till-många-relation* mellan authors och books - _en_ för fattare kan ha skrivit _många_ böcker (men en bok kan bara ha en författare).
+
+=== Främmande nyckel
+
+För att skapa en relation mellan två tabeller använder man en *främmande nyckel*. Man skapar en främmande nyckel genom att kopiera in värdet från  *primärnyckeln* i *en-änden* av relationen i en ny kolumn i *många-änden* av relationen.
+
+I vårt fall innebär det att vi ska lägga till primärnyckeln från **author**-tabellen i **books**-tabellen (en för fattare kan ha skrivit flera böcker).
+
+[cols=">1,<3,>1,<3", width="40%"]
+|===
+4+^| *books*
+| *id*  | *title*                   | *page_count*  | *author_id*
+|  1    | 'Catch 22'                | 464           | 1
+|  2    | 'To Kill a Mockingbird'   | 336           | 2
+|  3    | '1984'                    | 328           | 3
+|  4    | 'The Stranger'            | 123           | 4
+|  5    | 'Closing Time'            | 382           | 1
+|  6    | 'Animal Farm'             | 218           | 3
+|  7    | 'The Plague  '            | 312           | 4
+|  8    | 'Coming Up for Air'       | 393           | 3
+|===
+
+.Namngivning av den främmande nyckeln
+[NOTE]
+====
+Den främmande nyckelns kolumn kan heta precis vad som helst, men i den här boken kommer den främmande nyckelns kolumn-namn **alltid** döpas enligt följande: **namnet på en-ändens tabellnamn _i singular_** följt av ett understreck och sen **id** (**author_id**)
+====
