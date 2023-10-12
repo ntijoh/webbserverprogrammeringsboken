@@ -1,4 +1,4 @@
-= Filstruktur
+= Fil- och mappstruktur
 
 Ett Sinatraprojekt innehåller följande filer och mappar:
 
