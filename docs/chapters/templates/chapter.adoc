@@ -54,7 +54,7 @@ Skillnaden mellan kodblock som börjar med `<%=` och `<%` är att resultatet av 
 <% end %> <4>
 ----
 <1> Själva if-satsen ska inte synas på sidan, därför används `<% ... %>`.
-<2> Allt mellan `if`-blocket och `end-blocket` kommer visas på sidan om if-satsen är `true`. Om den är false, kommer _inget_ visas.
+<2> Allt mellan `if`-blocket och `end-blocket` kommer visas på sidan om if-satsen är `true`. Om den är `false`, kommer _inget_ visas.
 <3> `<%= ... %>` används eftersom innehållet i variabeln ska visas.
 <4> `end` ska inte visas på sidan, därför används `<% ... %>`.
 

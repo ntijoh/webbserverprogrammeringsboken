@@ -154,7 +154,7 @@ En statisk route innehåller inga dynamiska bitar, det vill säga, den request s
 === Dynamiska Routes
 
 En dynamisk route är en route där _delar_ av routen kan skilja från den route som är skriven.
-En dynamisk route skapas genom att man ersätter den bit av routen som ska vara dynamisk med ett kolon (`:`) följt av en beskrivande ord.
+En dynamisk route skapas genom att man ersätter den bit av routen som ska vara dynamisk med ett kolon (`:`) följt av ett beskrivande ord.
 
 [source, ruby,linenums]
 .En dynamisk route
@@ -163,7 +163,7 @@ En dynamisk route skapas genom att man ersätter den bit av routen som ska vara 
         ... #Lämplig kod
     end
 ----
-<1> Matchar `HTTP **GET** Requests` till `/weather/*VADSOMHELST*/, t.ex `/weather/goteborg` eller `/weather/oslo` eller `/weather/3`
+<1> Matchar `HTTP **GET** Requests` till `/weather/*VADSOMHELST*/``, t.ex `/weather/goteborg` eller `/weather/oslo` eller `/weather/3`
 
 Eftersom man antagligen vill veta vad det var för värde som låg på den dynamiska biten i requesten behöver man fånga upp den.
 

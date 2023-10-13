@@ -1,6 +1,7 @@
 :toc: left
 :icons: font
 :source-highlighter: coderay
+
 :docinfo: private-head
 :sourcedir: docs/chapters
 :imagesdir: img

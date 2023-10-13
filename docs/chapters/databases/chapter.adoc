@@ -82,15 +82,15 @@ En relationsdatabas består av tabeller och relationerna mellan tabellerna.
 
 === Primärnyckel och unika rader
 
-Varje rad i en tabell måste vara unik, det vill säga, i varje tabell får det inte förekomma två rader där samtliga kolumner är identiska.
+Varje rad i en tabell _måste_ vara unik, det vill säga, i varje tabell får det inte förekomma två rader där samtliga kolumner är identiska.
 
-Detta löses genom att varje tabell har ett attribut som kallas för *primärnyckel* eller *primary key*.
+Detta löses enklast genom att varje tabell har ett _attribut_ som kallas för *primärnyckel* eller *primary key*.
 
-När man skapar tabellen talar man om vilken av attributen som kommer vara primärnyckeln. 
+När man skapar tabellen talar man om vilket av attributen som kommer vara primärnyckeln. 
 
 I tabellen ovan har den som skapat tabellen valt attributet `id` som primärnyckel. En primärnyckels värde _måste_ vara unikt för tabellen och kolumnen.
 
-Detta innebär att om någon annan skulle skriva en bok som heter the stranger, och som råkar ha 123 sidor även den kommer raden fortfarande vara unik, eftersom den kommer få en unikt värde på primärnyckeln
+Detta innebär att även om det skulle finnas två böcker som heter _"The Stranger"_, och som båda råkar ha 123 sidor kommer raden fortfarande vara unik, eftersom den kommer få en unikt värde på primärnyckeln.
 
 .Varje tupel är fortfarande unik, trots att det finns två böcker med samma titel och sidantal.
 [cols=">1,<3,>1", width="45%"]
@@ -145,7 +145,7 @@ För att knyta samman två tabeller behöver vi skapa en *relation*, det vill s�
 |===
 
 
-I exemplet med böcker och författare behöver vi skapa en *en-till-många-relation* mellan authors och books - _en_ för fattare kan ha skrivit _många_ böcker (men en bok kan bara ha en författare).
+I exemplet med böcker och författare behöver vi skapa en *en-till-många-relation* mellan authors och books - _en_ författare kan ha skrivit _många_ böcker (men en bok kan bara ha en författare).
 
 === Främmande nyckel
 
