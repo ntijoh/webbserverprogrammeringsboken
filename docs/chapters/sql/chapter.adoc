@@ -1,0 +1,319 @@
+:imagesdir: chapters/sql/images
+
+
+= SQL
+
+För att prata med databashanteraren använder man frågespråket SQL, **S**tructured **Q**uery **L**anguage. SQL kan (på svenska) uttalas "ess-ku-ell", (på engelska) "es-queue-ell", som Engelska ordet "sequel" eller som "seek well".
+
+SQL skiljer sig från programmeringsspråk som t.ex Ruby eller Javascript genom att man definerar _vilken_ information man vill ha, och lämnar upp till databashanteraren att avgöra _hur_ den på bästa (snabbaste och säkraste) sätt ska hämta efterfrågad data.
+
+Man brukar säga att Ruby (och de flesta andra programmeringsspråk) är _imperativa_, dvs man säger till datorn hur och i vilken ordning den ska göra något, medan SQL är _deklarativt_, det vill säga man deklarerar vilket resultat man vill ha och lämnar till "datorn" att avgöra hur den ska uppnå resultatet.
+
+.Ruby - rad 8-14 beskriver _hur_ datan ska hämtas (i det här fallet med hjälp av en while-loop).
+[source, ruby, linenums, highlight='8-14']
+----
+titles = [ {name: 'BBQ Book', isbn: '123', page_count: 1337}, 
+          {name: 'Grillboken', isbn: '234', page_count: 42}, 
+          ... 
+        ]
+
+long_titles = []
+
+i = 0
+while i < titles.length
+    if titles[i][:page_count] > 500
+        long_titles << books[i]
+    end
+    i += 1
+end
+
+p long_titles
+----
+
+.SQL - *hur* databashanteraren ska hämta den efterfrågade informationen framgår inte i frågan
+[source, sql, linenums]
+----
+SELECT * FROM titles WHERE page_count > 500; <1>
+----
+<1> Förutsatt att det i databasen finns en tabell vid namn titles
+
+== Select
+
+.Hämta _alla_ poster från en tabell
+[source, sql]
+----
+SELECT * FROM fruits;
+----
+
+.Hämta alla poster från tabell som uppfyller ett givet villkor
+[source, sql]
+----
+SELECT * FROM products WHERE price < 100;
+----
+
+.Hämta alla poster från tabell som uppfyller flera villkor
+[source, sql]
+----
+SELECT * FROM songs WHERE play_count > 100 AND length < 120;
+----
+
+== Select med join
+
+För att hämta data från en tabell, samt tillhörande data från en tillhörande tabell behöver man använda sig av *joins*. En join är ett sätt att med en fråga få data från flera tabeller.
+
+Kod-exemplen nedan utgår från fruits och ratings. Det finns en `fruits`-tabell och en `ratings`-tabell. I ratings-tabellen återfinns `fruits`-tabellens primärnyckel som en främmande nyckel:
+
+.De två tabellerna och deras koppling
+image::joins_example.png[]
+
+När man ska skriva en SQL-join är det enklast om man utvecklar SQL-frågan rad för rad:
+
+.1. Hämta alla poster från primär-resursen
+[source, sql, linenums]
+----
+ SELECT * 
+ FROM fruits
+----
+
+Ovanstående fråga  returnerar en array av arrayer:
+
+[source, ruby, linenums]
+----
+[
+    [1, "apple"], 
+    [2, "banana"], 
+    [3, "pear"], 
+    [4, "orange"]
+]
+----
+
+.2. Lägg till en join för den tillhörande tabellen
+[source, sql, linenums, highlight='3']
+----
+ SELECT * 
+ FROM fruits
+ INNER JOIN ratings
+----
+
+Ovanstående fråga returnerar också en array av arrayer.
+De första två elementen i varje array är värdena från `fruits`-tabellen. De sista tre elementen i varje array är värden från `ratings`-tabellen (eftersom det i SQL-frågan först står `fruits` och sen `ratings`).
+
+Man kan alltså visualisera att arrayen ser ut som följer: 
+
+`[<fruits.id>,<fruits.name>,<ratings.id>,<ratings.score>,<ratings.fruit_id>]`.
+
+[source, ruby, linenums]
+----
+[
+    [1, "apple",  1, 3, 1], 
+    [1, "apple",  2, 3, 2], 
+    [1, "apple",  3, 3, 1], 
+    [1, "apple",  4, 4, 2], 
+    [1, "apple",  5, 5, 1], 
+    [1, "apple",  6, 7, 1], 
+    [1, "apple",  7, 8, 1], 
+    [1, "apple",  8, 9, 3], 
+    [2, "banana", 1, 3, 1], 
+    [2, "banana", 2, 3, 2], 
+    [2, "banana", 3, 3, 1], 
+    [2, "banana", 4, 4, 2], 
+    [2, "banana", 5, 5, 1], 
+    [2, "banana", 6, 7, 1], 
+    [2, "banana", 7, 8, 1], 
+    [2, "banana", 8, 9, 3], 
+    [3, "pear",   1, 3, 1], 
+    [3, "pear",   2, 3, 2], 
+    [3, "pear",   3, 3, 1], 
+    [3, "pear",   4, 4, 2], 
+    [3, "pear",   5, 5, 1], 
+    [3, "pear",   6, 7, 1], 
+    [3, "pear",   7, 8, 1], 
+    [3, "pear",   8, 9, 3], 
+    [4, "orange", 1, 3, 1], 
+    [4, "orange", 2, 3, 2], 
+    [4, "orange", 3, 3, 1], 
+    [4, "orange", 4, 4, 2], 
+    [4, "orange", 5, 5, 1], 
+    [4, "orange", 6, 7, 1], 
+    [4, "orange", 7, 8, 1], 
+    [4, "orange", 8, 9, 3]
+]
+----
+
+Dessvärre innehåller den returnerade datan en massa nonsens: databashanteraren har, för varje rad i ratings-tabellen, "hittat på" en rad för varje rad i frukt-tabellen (vi har 8 ratings, och 4 frukter, `8 * 4 => 32`).
+
+Det vi behöver göra nu är att filtrera ut de värden som faktiskt finns i databasen, det vill säga de rader där den _främmande_ nyckeln är samma som _primärnyckeln_ i huvudtabellen. 
+
+I vårt fall är det alltså `fruits_id` i `ratings`-tabellen (det sista elementet i arrayen) som ska vara sammma som `id` i `fruits`-tabellen (det första elementet i arrayen).
+
+.De rader som faktiskt finns i databasen
+[source, ruby, linenums, highlight='2,4,6,7,8,11,13,25']
+----
+[
+    [1, "apple",  1, 3, 1], 
+    [1, "apple",  2, 3, 2], 
+    [1, "apple",  3, 3, 1], 
+    [1, "apple",  4, 4, 2], 
+    [1, "apple",  5, 5, 1], 
+    [1, "apple",  6, 7, 1], 
+    [1, "apple",  7, 8, 1], 
+    [1, "apple",  8, 9, 3], 
+    [2, "banana", 1, 3, 1], 
+    [2, "banana", 2, 3, 2], 
+    [2, "banana", 3, 3, 1], 
+    [2, "banana", 4, 4, 2], 
+    [2, "banana", 5, 5, 1], 
+    [2, "banana", 6, 7, 1], 
+    [2, "banana", 7, 8, 1], 
+    [2, "banana", 8, 9, 3], 
+    [3, "pear",   1, 3, 1], 
+    [3, "pear",   2, 3, 2], 
+    [3, "pear",   3, 3, 1], 
+    [3, "pear",   4, 4, 2], 
+    [3, "pear",   5, 5, 1], 
+    [3, "pear",   6, 7, 1], 
+    [3, "pear",   7, 8, 1], 
+    [3, "pear",   8, 9, 3], 
+    [4, "orange", 1, 3, 1], 
+    [4, "orange", 2, 3, 2], 
+    [4, "orange", 3, 3, 1], 
+    [4, "orange", 4, 4, 2], 
+    [4, "orange", 5, 5, 1], 
+    [4, "orange", 6, 7, 1], 
+    [4, "orange", 7, 8, 1], 
+    [4, "orange", 8, 9, 3]
+]
+----
+
+Filtreringen gör vi genom att säga till vilka två kolumner som ska matcha med hjälp av `ON`:
+
+[source, sql, linenums, highlight=4]
+----
+SELECT * 
+FROM fruits 
+INNER JOIN ratings 
+ON ratings.fruit_id = fruits.id
+----
+
+Vilket returnerar den filtrerade listan:
+
+[source, ruby, linenums]
+----
+[
+    [1, "apple",  1, 3, 1],
+    [2, "banana", 2, 3, 2],
+    [1, "apple",  3, 3, 1],
+    [2, "banana", 4, 4, 2],
+    [1, "apple",  5, 5, 1],
+    [1, "apple",  6, 7, 1],
+    [1, "apple",  7, 8, 1],
+    [3, "pear",   8, 9, 3]]
+----
+
+Om vi slutligen vill begränsa frågan till en specik frukt lägger vi till en `WHERE` sist i frågan:
+
+[source, ruby, linenum, highlight=5]
+----
+db.execute('SELECT * 
+            FROM fruits 
+            INNER JOIN ratings
+            ON ratings.fruit_id = fruits.id
+            WHERE fruits.id = ?', 2)
+----
+
+Vilket returnerar enbart resultat för frukten med `id` 2:
+
+[source, ruby, linenums]
+----
+[
+    [2, "banana", 2, 3, 2],
+    [2, "banana", 4, 4, 2]
+]
+----
+
+Joins _är_ jobbiga att komma underfund med, men om man gör dem steg för steg enligt ovan, och testkör frågan för varje steg är det enklare att förstå vad man ska skriva.
+
+== Insert
+
+== Update
+
+== Create table
+
+== SQL-Injection
+
+SQL är ett gammalt språk från 60-talet, långt innan internet slog igenom. Det är från en enklare tid, när man utgick från att de som kunde skicka data till databasen var välvilliga, och inte ville förstöra eller hämta ut data som de inte egentligen hade rättigheter att komma åt.
+
+Därför innehåller SQL en stor säkerhetslucka som gör det möjligt för en illvillig person att köra godtycklig SQL-kod mot databasen (t.ex lista alla användare eller ta bort tabeller) genom en så kallad *SQL-injection* attack. Detta innebär att *all data som kommer från en användare (dvs inte står skriven som statiska värden i källkoden) måste saneras innan de skickas till databashanteraren*
+
+SQLite3-biblioteket i Ruby löser saneringen genom att man skriver `?` i SQL-strängen där man vill lägga in värden från användaren, och sen skicka en array av värden som kommer, på ett säkert sätt, ersätta frågetecknen:
+
+.En (1) parameter från användaren (id)
+[source, ruby, linenums]
+----
+db.execute('SELECT * FROM fruits WHERE id = ?', id)
+----
+
+.Flera parametrar från användaren (username, password)
+[source, ruby, linenums]
+----
+db.execute('INSERT INTO users (username, password) VALUES (?,?)', username, password)
+----
+
+Vad kan hända om man interpolerar värden direkt från användaren?
+
+Anta att du tar emot data från användaren, och datan lagras i variabeln `name`
+
+[WARNING]
+====
+**NEDANSTÅENDE ARBETSSÄTT MED INTERPOLERING ÄR ABSOLUT FÖRBJUDET ATT ANVÄNDA SIG AV**.
+
+====
+
+[source, ruby]
+----
+db.execute("SELECT * FROM users WHERE name = #{name}") <1>
+----
+<1> `name` kommer från användaren och interpoleras in i SQL-strängen.
+
+Frågan ser ofarlig ut, men om `name` innehåller en speciellt formaterad sträng kan vad som helst ske med databasen.
+
+.Exempel 1: Lista alla poster i tabellen
+[source, ruby]
+----
+name = "Haxx0r OR 1 = 1" <1>
+db.execute("SELECT * FROM users WHERE name = #{id}") <2>
+#=> [[1, "user1", "password1"], [2, "user2", "password2"], [3, "user3", "password3"]] <3>
+----
+<1> Strängen innehåller en `or`-statement där den högra jämförelsen alltid blir sann.
+<2> En `SELECT` med `WHERE` returnerar de rader där jämförelsen är `true`. Men eftersom strängen innehåller en or-statement, och i or-statements behöver bara ena sidan vara `true`, blir `id = 3 OR 1 = 1` _alltid_ true. Det databashanteraren ser är alltså `SELECT * FROM USERS WHERE true`
+<3> Eftersom `true` är `true` för alla rader returneras alla rader från tabellen.
+
+
+.Exempel 2: Ta bort en tabell
+[source, ruby]
+----
+name = "Haxx0r'; DROP TABLE users; -- "
+db.execute("SELECT * FROM users WHERE name = '#{name}';"
+db.execute("SELECT * FROM users;" #=> eval error: no such table: users
+----
+
+.Förtydligande kring hur SQL-koden tolkas
+[source, sql]
+----
+SELECT * 
+FROM users 
+WHERE name = 'Haxxor'; <1>
+DROP TABLE users; <2>
+-- ';<3>
+----
+<1> Strängen innehåller Haxx0r**';**. `'` gör att strängen avslutas, `;` avslutar frågan (som kommer köras, men resultatet används inte)
+<2> Drop table statement som stod efter `;` i strängen kommer köras
+<3> Strängen avslutas med en kommentar, `';` är det som ursprungligen stod efter den interpolerade strängen.
+
+[NOTE]
+====
+I SQLite3-biblioteket till Ruby vi använder körs som standard alltid enbart den första frågan i en query, dvs eventuella frågor som står efter ett `;` kommer ignoreras. Så exemplet ovan fungerar inte (men det finns en `db.execute_batch` som kör alla frågor med i queryn, och med `execute_batch` fungerar exemplet). 
+
+Men långt ifrån alla bibliotek och eller språk ignorerar eventuella extra frågor. I PHP fanns länge både funktionen `mysql_escape_string` och `mysql_**real**_escape_string` - den första var inte tillräckligt säker - och ingendera körde enbart den första frågan.
+====
+

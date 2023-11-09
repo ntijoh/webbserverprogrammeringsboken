@@ -1,8 +1,8 @@
 :toc: left
 :icons: font
-:source-highlighter: coderay
+:source-highlighter: rouge
+:docinfo: shared
 
-:docinfo: private-head
 :sourcedir: docs/chapters
 :imagesdir: img
 :code_lang: ruby
@@ -14,6 +14,7 @@
 = Webbserverprogrammeringsboken
 
 include::chapters/databases/chapter.adoc[leveloffset=+1]
+include::chapters/sql/chapter.adoc[leveloffset=+1]
 include::chapters/requests_and_routing/chapter.adoc[leveloffset=+1]
 include::chapters/templates/chapter.adoc[leveloffset=+1]
 include::chapters/filstruktur/chapter.adoc[leveloffset=+1]

@@ -30,7 +30,7 @@ Man kan inte kommunicera direkt med en databas; all kommunikation sker via en da
 
 I den här kursen kommer vi använda oss av *SQLite* som DBMS.
 
-=== Tabeller rader och kolumner
+=== Tabeller, rader och kolumner
 
 En relationsdatabas består av en eller flera *tabeller* Varje tabell har ett namn, och består av *rader* och *kolumner*.
 
