@@ -14,9 +14,9 @@ För att variabler definerade i en route ska vara tillgängliga i en mall behöv
 .En route med instansvariabel
 ----
 get '/weather/:city' do |city|
-    @city = city <1>
-    precipitation = 100 <2>
-    erb :weather
+  @city = city <1>
+  precipitation = 100 <2>
+  erb :weather
 end
 ----
 <1> `@city` kommer gå att använda inne i erb-mallen
@@ -49,8 +49,8 @@ Skillnaden mellan kodblock som börjar med `<%=` och `<%` är att resultatet av 
 .En erb-mall med en if-sats
 ----
 <% if @weather == 'raining' %> <1>
-    <img src='/img/rain.png'> <2>
-    <span>Nederbörd: <%= @precipitation %> mm</span> <3>
+  <img src='/img/rain.png'> <2>
+  <span>Nederbörd: <%= @precipitation %> mm</span> <3>
 <% end %> <4>
 ----
 <1> Själva if-satsen ska inte synas på sidan, därför används `<% ... %>`.
@@ -69,12 +69,12 @@ Skillnaden mellan kodblock som börjar med `<%=` och `<%` är att resultatet av 
 .En erb-mall med en each-loop
 ----
 <ol>
-    <% @cities.each do |city| %> <1>
-        <li> <2>
-            <h3><%= city.capitalize %></h3> <3>
-            <img src='/img/<%= city.downcase %>.png'> <3>
-        </li>
-    <% end %> <4>
+  <% @cities.each do |city| %> <1>
+    <li> <2>
+      <h3><%= city.capitalize %></h3> <3>
+        <img src='/img/<%= city.downcase %>.png'> <3>
+      </li>
+  <% end %> <4>
 </ol>
 ----
 <1> Själva each-loopen ska inte synas på sidan, därför används `<% ... %>`.
@@ -87,18 +87,18 @@ Skillnaden mellan kodblock som börjar med `<%=` och `<%` är att resultatet av 
 .Föregående mall renderad till HTML (om `@cities` är `['copenhagen', 'gothenburg', 'OSLO']`)
 ----
 <ol>
-    <li>
-        <h3>Copenhagen</h3>
-        <img src='/img/copenhagen.png' />
-    </li>
-    <li>
-        <h3>Gothenburg</h3>
-        <img src='/img/gothenburg.png' />
-    </li>
-    <li>
-        <h3>Oslo</h3>
-        <img src='/img/oslo.png' />
-    </li>
+  <li>
+    <h3>Copenhagen</h3>
+    <img src='/img/copenhagen.png' />
+  </li>
+  <li>
+    <h3>Gothenburg</h3>
+    <img src='/img/gothenburg.png' />
+  </li>
+  <li>
+    <h3>Oslo</h3>
+    <img src='/img/oslo.png' />
+  </li>
 </ol>
 ----
 
@@ -294,7 +294,7 @@ Labels ger etiketter till andra form-element. Genom att sätt `for`-attributet p
 .Element med labels
 ----
 <!-- i ett form-element -->
-<label for="fruit">Frukt</label>
+<label f [or="fruit">Frukt</label>
 <input type="text" id="fruit" name="fruit">
 
 <input type="checkbox" id="favourite" name="favourite">

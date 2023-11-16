@@ -90,13 +90,13 @@ I `app.rb` skrivar man sina _routes_, dvs regler som bestämmar vilka resurser s
 ----
 class App < Sinatra::Base <1>
 
-    get '/' do <2>
-        erb :index
-    end
+  get '/' do <2>
+    erb :index
+  end
 
-    get '/fruits' do <3>
-        erb :'fruits/index'
-    end
+  get '/fruits' do <3>
+    erb :'fruits/index'
+  end
 
 end
 ----
@@ -111,15 +111,15 @@ Man kan låtsas att routes i en Sinatra-app fungerar som en lång if-elsif-else-
 [source, ruby,linenums]
 .pseudokod som beskriver en *tankemodell* för hur routing fungerar
 ----
-    if verb == "GET" && resource == "/"
-        return erb(:index)
-    elsif verb == "GET" && resource == '/fruits'
-        return erb(:'fruits/index')
-    elsif File.exist?("./public#{resource}")
-        return File.read("./public#{resource}")
-    else
-        return (404, "Not Found")
-    end
+if verb == "GET" && resource == "/"
+  return erb(:index)
+elsif verb == "GET" && resource == '/fruits'
+  return erb(:'fruits/index')
+elsif File.exist?("./public#{resource}")
+  return File.read("./public#{resource}")
+else
+  return (404, "Not Found")
+end
 ----
 
 Det är inte så det är implementerat _egentligen_, men tankemodellen fungerar när man ska bestämma vilka routes man ska ha och i vilken ordning i de behöver finnas i.
@@ -134,17 +134,17 @@ En statisk route innehåller inga dynamiska bitar, det vill säga, den request s
 [source, ruby,linenums]
 .Tre statiska routes
 ----
-    get '/' do <1>
-        ... #Lämplig kod
-    end
+get '/' do <1>
+  ... #Lämplig kod
+end
 
-    get '/weather' do <2>
-        ... #Lämplig kod
-    end
+get '/weather' do <2>
+  ... #Lämplig kod
+end
 
-    post '/weather' do <3>
-        ... #Lämplig kod
-    end
+post '/weather' do <3>
+  ... #Lämplig kod
+end
 ----
 <1> Matchar `HTTP **GET** Requests` till `/`
 <2> Matchar `HTTP **GET** Requests` till `/weather`
@@ -159,9 +159,9 @@ En dynamisk route skapas genom att man ersätter den bit av routen som ska vara 
 [source, ruby,linenums]
 .En dynamisk route
 ----
-    get '/weather/:city' do |city| <1>
-        ... #Lämplig kod
-    end
+get '/weather/:city' do |city| <1>
+  ... #Lämplig kod
+end
 ----
 <1> Matchar `HTTP **GET** Requests` till `/weather/*VADSOMHELST*/``, t.ex `/weather/goteborg` eller `/weather/oslo` eller `/weather/3`
 
@@ -170,9 +170,9 @@ Eftersom man antagligen vill veta vad det var för värde som låg på den dynam
 [source, ruby,linenums]
 .En dynamisk route som faktiskt fångar upp den dynamiska **parametern**
 ----
-    get '/weather/:city' do |city| <1>
-        ... #Lämplig kod
-    end
+get '/weather/:city' do |city| <1>
+  ... #Lämplig kod
+end
 ----
 <1> Variabeln `city` innehåller nu vad som fanns på motsvarande ställe i requesten, text "goteborg", "oslo" eller "3".
 
@@ -186,9 +186,9 @@ Om applikationen förnväntar sig ett tal (integer) behöver man omvandla siffra
 [source, ruby,linenums]
 .En dynamisk route med två **parametrar**
 ----
-    get '/weather/:city/temperature/:date' do |location, date| <1>
-        ... #Lämplig kod
-    end
+get '/weather/:city/temperature/:date' do |location, date| <1>
+  ... #Lämplig kod
+end
 ----
 <1> När man har flera _parametrar_ i en dynamisk route mappas parametrar till variabler i den ordning de kommer. Om requesten är `GET /weather/**goteborg**/temperature/**2023-09-23**` kommer `location` innehålla `'goteborg'` och `date` innehålla `'2023-09-23'`.
 
@@ -265,10 +265,11 @@ För att ta emot datan från formuläret i Sinatra behöver vi skapa en route so
 .Exempel på en route som behandlar data från formulär
 ----
 post '/fruits' do  <1>
-    name = params['fruit'] <2>
-    rating = params['rating'].to_i <3>
-    id = db.execute('INSERT INTO fruits (name, rating) VALUES (?,?) RETURNING id', name, rating) <4>
-    redirect "/fruits/#{id}" <5>
+  name = params['fruit'] <2>
+  rating = params['rating'].to_i <3>
+  query = 'INSERT INTO fruits (name, rating) VALUES (?,?) RETURNING id'
+  result = db.execute(query, name, rating).first <4>
+  redirect "/fruits/#{result['id']}" <5>
 end
 ----
 <1> Den route som datan från formuläret skickas till. Observera `post`.
@@ -281,8 +282,8 @@ end
 .Exempel på en route man kan redirectas till (eller surfa direkt till)
 ----
 get '/fruits/:id' do |fruit_id|  <1>
-    @fruit = db.execute('SELECT * FROM fruits WHERE id = ?', fruit_id) <2>
-    erb :'fruits/show' <3>
+  @fruit = db.execute('SELECT * FROM fruits WHERE id = ?', fruit_id) <2>
+  erb :'fruits/show' <3>
 end
 ----
 <1> En dynamisk route, som "råkar" matcha routen som redirecten ovan går till.
