@@ -89,15 +89,224 @@ Skillnaden mellan kodblock som börjar med `<%=` och `<%` är att resultatet av 
 <ol>
     <li>
         <h3>Copenhagen</h3>
-        <img src='/img/copenhagen.png'
+        <img src='/img/copenhagen.png' />
     </li>
     <li>
         <h3>Gothenburg</h3>
-        <img src='/img/gothenburg.png'
+        <img src='/img/gothenburg.png' />
     </li>
     <li>
         <h3>Oslo</h3>
-        <img src='/img/oslo.png'
+        <img src='/img/oslo.png' />
     </li>
 </ol>
 ----
+
+== Formulär
+
+För att skicka data från användaren till Servern används formulär.
+
+[source, erb,linenums]
+.Ett formulär
+----
+<!-- Övrig HTML -->
+<form action='/fruits' method="POST"><1>
+  <input type='text' name="fruit" placeholder="Fruit name"></input><2>
+  <input type='number' name="rating"></input><2>
+  <button type='submit'>Create new fruit rating</button><3>
+</form>
+<!-- Övrig HTML -->
+----
+<1> `action` är vilken *route* datan ska skickas till på servern, `method` är vilket HTTP-verb som ska användas (nästan alltid `POST`)
+<2> Ett text-input-element. `name`-attributet anger vilken *parameter* som kommer innehålla input-elementets värde
+<3> Ett submit-knapp-element. När knappen klickas kommer webbläsaren göra en `POST`-request till `/fruits` med datan från formuläret.
+
+== Formulär-element
+
+För att skicka data med ett formulär behöver man olika element att "mata in" datan i.
+
+Följande element är vanliga i formulär:
+
+=== input
+
+Ofta en ruta man kan mata in värden i. Det finns flera olika typer av input-element: `text`, `number`, `password`, `email`, `search`, etc
+
+[source, html,linenums]
+.Några olika input-element
+----
+<!-- i ett form-element -->
+<input type='text' name="fruit" placeholder="Fruit name"></input>
+<input type='number' name="rating"></input>
+<input type='email' name="email"></input>
+<input type='search' name="query"></input>
+----
+
+++++
+<input type="text" name="fruit" placeholder="Fruit name"></input>
+<input type='number' name="rating"></input>
+<input type='email' name="email"></input>
+<input type='search' name="query"></input>
+++++
+
+
+Läs mer om https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input[input-elementen på MDN]
+
+=== checkbox
+
+En ruta som kan vara eller inte vara ikryssad. Egentligen en typ av input-element.
+
+[source, html,linenums]
+.Två checkboxes
+----
+<!-- i ett form-element -->
+<input type="checkbox" name="hungry" />
+<input type="checkbox" name="thirsty" checked />
+----
+
+++++
+<input type="checkbox" name="hungry" />
+<input type="checkbox" name="thirsty" checked />
+++++
+
+Läs mer om https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox[checkbox  på MDN]
+
+=== textarea
+
+Ett text-input-element med flera rader
+
+[source, html,linenums]
+.En textarea 
+----
+<!-- i ett form-element -->
+<textarea name="message" />
+----
+
+++++
+<textarea name="message"></textarea>
+++++
+
+Läs mer om https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea[textarea på MDN]
+
+=== select och option
+
+En select är en slags dropdown-lista, där alternativen ligger i option-element.
+[source, html,linenums]
+.Ett select-element med 4 alternativ 
+----
+<!-- i ett form-element -->
+<select name="fruits">
+  <option value="">--Välj en frukt--</option>
+  <option value="banana">Banan</option>
+  <option value="pear">Päron</option>
+  <option value="apple">Äpple</option>
+  <option value="orange">Apelsin</option>
+</select>
+----
+
+++++
+<select name="fruits">
+  <option value="">--Välj en frukt--</option>
+  <option value="banana">Banan</option>
+  <option value="pear">Päron</option>
+  <option value="apple">Äpple</option>
+  <option value="orange">Apelsin</option>
+</select>
+++++
+
+Läs mer om https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select[select på MDN]
+
+=== radio button
+
+Som en select, fast med knappar istället. Enbart en kan vara aktiv åt gången. Egentligen en variant av input.
+
+[source, html,linenums]
+.En radio button med 4 alternativ
+----
+<!-- i ett form-element -->
+<input type="radio" name="fruit" value="pear" checked />
+<input type="radio" name="fruit" value="banana" />
+<input type="radio" name="fruit" value="apple" />
+<input type="radio" name="fruit" value="orange" />
+----
+
+++++
+<input type="radio" name="fruit" value="pear" checked />
+<input type="radio" name="fruit" value="banana" />
+<input type="radio" name="fruit" value="apple" />
+<input type="radio" name="fruit" value="orange" />
+++++
+
+Läs mer om https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/radio[radio button på MDN]
+
+=== datalist
+
+En slags autocomplete-sök-lista (liknande en select, men man får skriva istället). Egentligen ett input-element som hämtar alternativen från ett datalist-element med options
+
+[source, html,linenums]
+.En datalist med 4 alternativ
+----
+<!-- i ett form-element -->
+<input list="fruits" name="fruit" />
+
+<datalist id="fruits">
+  <option value="Pear"></option>
+  <option value="Banana"></option>
+  <option value="Apple"></option>
+  <option value="Orange"></option>
+</datalist>
+----
+
+++++
+<input list="fruits" name="fruit" />
+
+<datalist id="fruits">
+  <option value="Pear"></option>
+  <option value="Banana"></option>
+  <option value="Apple"></option>
+  <option value="Orange"></option>
+</datalist>
+++++
+
+Läs mer om https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist[datalist på MDN]
+
+=== button
+
+En knapp (för att skicka in formulär t.ex) 
+
+[source, html,linenums]
+.En submit-knapp
+----
+<!-- i ett form-element -->
+<button type="submit"/>Skicka</button>
+----
+
+++++
+<button type="submit"/>Skicka</button>
+++++
+
+Läs mer om https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button[button på MDN]
+
+=== label
+
+Labels ger etiketter till andra form-element. Genom att sätt `for`-attributet på en label till ett annat elements `id`-attribut kopplas label till element
+
+[source, html,linenums]
+.Element med labels
+----
+<!-- i ett form-element -->
+<label for="fruit">Frukt</label>
+<input type="text" id="fruit" name="fruit">
+
+<input type="checkbox" id="favourite" name="favourite">
+<label for="favourite">Favorit?</label>
+----
+
+++++
+<label for="fruit">Frukt</label>
+<input type="text" id="fruit" name="fruit">
+
+<input type="checkbox" id="favourite" name="favourite">
+<label for="favourite">Favorit?</label>
+++++
+
+Läs mer om https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label[labels på MDN]

@@ -159,7 +159,7 @@ En dynamisk route skapas genom att man ersätter den bit av routen som ska vara 
 [source, ruby,linenums]
 .En dynamisk route
 ----
-    get '/weather/:city' do <1>
+    get '/weather/:city' do |city| <1>
         ... #Lämplig kod
     end
 ----
@@ -197,3 +197,94 @@ Om applikationen förnväntar sig ett tal (integer) behöver man omvandla siffra
 ====
 Parametrar (`:city`) och variabler (`location`) _behöver_ inte heta likadant, men det blir ofta förvirrande om de inte gör det.
 ==== 
+
+== Formulär och GET-POST-Redirect-Cykeln
+
+Formulär skickar data via `POST`-requests. Men en `POST`-request ska inte användas för att _visa_ data - det är vad `GET`-requests är till för.
+
+För att visa resursen som skapats när en användare skickat in data via ett formulär måste man därför säga till användarens webbläsare vart den ska ta vägen (dvs göra en `GET`-request till) efter servern behandlat datan.
+
+Detta görs genom att servern, efter den behandlat datan från formuläret, skickar tillbaks en `Response` som talar om vart webbläsaren ska skicka en `GET`-request. Webbläsaren skickar sen automagiskt en `GET`-request dit servern specificerat.
+
+[mermaid,theme=neutral]
+.GET-POST-Redirect-cykeln i ett Sekvensdiagram
+....
+sequenceDiagram
+    participant Client
+    participant App
+    Client->>App:  GET /fruits
+    App-->>App: Match route
+    App-->>App: Render template (with form)
+    App->>Client: 200, resource (containing form)
+    Client-->>Client: Fills out form
+    Client->>App: POST '/fruits' (Submits form with form data)
+    App-->>App: Match route
+    App-->>App: Use form data (send to database?)
+    App->>Client: 302, redirect, "/fruits/<<id of new fruit>>"
+    Client->>App: GET /fruits/<<id of new fruit>>
+    App-->>App: Match route
+    App-->>App: Talk with DB, render template 
+    App->>Client: 200, resource
+....
+
+[mermaid,theme=neutral]
+.GET-POST-Redirect-cykeln som ett flödesschema
+....
+flowchart TD
+
+id0[Client requests resource]
+id1[Server renders resource with form]
+id2[Client fills out and submits form]
+id3[Server processes data from form]
+id4[Server sends redirect response]
+id5[Client requests redirected resource]
+id0 --> id1
+id1 --> id2
+id2 --> id3
+id3 --> id4
+id4 --> id5
+id5 --> id1
+....
+
+== Formulärbehandlande routes i Sinatra
+
+Givet följande formulär som skickas in:
+
+[source, html, linenums]
+----
+<form action='/fruits' method="POST">
+  <input type='text' name="fruit" placeholder="Fruit name"></input>
+  <input type='number' name="rating"></input>
+  <button type='submit'>Create new fruit rating</button>
+</form>
+----
+
+För att ta emot datan från formuläret i Sinatra behöver vi skapa en route som matchar formulärets `method` och `action` - i det här fallet `POST` och `/fruits`.
+
+[source, ruby,linenums]
+.Exempel på en route som behandlar data från formulär
+----
+post '/fruits' do  <1>
+    name = params['fruit'] <2>
+    rating = params['rating'].to_i <3>
+    id = db.execute('INSERT INTO fruits (name, rating) VALUES (?,?) RETURNING id', name, rating) <4>
+    redirect "/fruits/#{id}" <5>
+end
+----
+<1> Den route som datan från formuläret skickas till. Observera `post`.
+<2> Params innehåller `'fruit'` eftersom formuläret har ett input-element med `name="fruit"`
+<3> All data i params är alltid strängar, om du vill ha något annat behöver man göra en typomvandling (t.ex `to_i`)
+<4> Datan från formuläret behandlas på lämpligt sätt (exemplet förutsätter t.ex. att det finns en fruits-tabell)
+<5> Servern skickar ett redirect-response. Klienten kommer automagiskt skicka en ny förfrågan efter resursen
+
+[source, ruby,linenums]
+.Exempel på en route man kan redirectas till (eller surfa direkt till)
+----
+get '/fruits/:id' do |fruit_id|  <1>
+    @fruit = db.execute('SELECT * FROM fruits WHERE id = ?', fruit_id) <2>
+    erb :'fruits/show' <3>
+end
+----
+<1> En dynamisk route, som "råkar" matcha routen som redirecten ovan går till.
+<2> Gör lämplig behandling av parametrarna i routen
+<3> Rendera lämplig mall.

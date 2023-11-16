@@ -235,10 +235,15 @@ Joins _är_ jobbiga att komma underfund med, men om man gör dem steg för steg 
 
 == Insert
 
-== Update
+För att lagra data i tabeller används `INSERT`
 
-== Create table
+[source, sql]
+----
+INSERT INTO fruits (name, tastiness) VALUES ('pear', 8) <1>
+----
+<1> Observera att `id` inte skickas med. Det skapar databasen själv, baserat på vilka id:n som är upptagna.
 
+[discrete]
 == SQL-Injection
 
 SQL är ett gammalt språk från 60-talet, långt innan internet slog igenom. Det är från en enklare tid, när man utgick från att de som kunde skicka data till databasen var välvilliga, och inte ville förstöra eller hämta ut data som de inte egentligen hade rättigheter att komma åt.
