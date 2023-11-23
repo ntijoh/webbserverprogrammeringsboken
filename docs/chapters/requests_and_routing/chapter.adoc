@@ -472,14 +472,13 @@ Varför då?
 
 
 [source, ruby, linenums]
-.messages#edit route i app.rb
+.messages#delete route i app.rb
 ----
 ...
-  # messages#update
-  post '/messages/:id/update' do |id| <1>
-    message = params['content']
-    db.execute('UPDATE messages SET (message = ?) WHERE id = ?', message, id)
-		redirect "/messages/#{id}"
+  # messages#delete
+  post '/messages/:id/delete' do |id| <1>
+    db.execute('DELETE FROM messages WHERE id = ?', id)
+		redirect "/messages/"
   end
 ...
 ----

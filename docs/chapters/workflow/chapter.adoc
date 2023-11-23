@@ -89,7 +89,7 @@ i `app.rb`
 ----
 ...
   # snippets#show
-  get '/snippets/:id' do id
+  get '/snippets/:id' do |id|
     @snippet = db.execute('SELECT * FROM snippets WHERE id = ?', id.to_i).first
     erb :'snippets/show'
   end
