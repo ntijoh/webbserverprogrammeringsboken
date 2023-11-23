@@ -289,3 +289,199 @@ end
 <1> En dynamisk route, som "råkar" matcha routen som redirecten ovan går till.
 <2> Gör lämplig behandling av parametrarna i routen
 <3> Rendera lämplig mall.
+
+== Routes för CRUD
+
+De allra, allra flesta webbapplikationer är så kallade CRUD-applikationer, det vill säga man kan skapa (**C**reate), visa (**R**ead), ändra (**U**pdate), och ta bort (**D**elete) olika _resurser_.
+
+Eftersom dessa operationer (CRUD) är så vanliga finns det en standard för hur man ska jobba med dem. Det finns 7 olika _actions_ och varje _action_ och _resurs_ motsvarar en _route_ i `app.rb`
+
+I exemplet nedan utgår vi från en app som är ett digitalt klotterplank, där resursen är `message`.
+
+Ett message består av ett `id` och `content` (textinnehållet i meddelandet).
+
+I appen kan vem som helst kan skriva (**C**reate) ett meddelande och meddelandena kan visas (**R**ead), ändras (**U**pdate) och tas bort (**D**elete) av vem som helst. Följande actions och routes finns för `message`, men de `routes` och `actions` som visas gäller för alla sorters resurser.
+
+=== Action: `index` route : `/messages` method: `get`
+
+`index` visar _en listning_ av alla förekomster av den aktuella resursen. Eventuellt kan listan vara filtrerad (t.ex skulle enbart meddelanden som tillhör den aktuella användaren kunna visas, om applikationen hade haft stöd för användare och inloggning).
+
+[source, ruby, linenums]
+.messages#index route i app.rb
+----
+...
+  # messages#index <1>
+  get '/messages' do <2>
+    @messages = db.execute('SELECT * FROM messages') <3>
+    erb :'messages/index' <4>
+  end
+...
+----
+<1> En kommentar som berättar vilken resurs och action routen motsvarar
+<2> Routen för `index` är `/<resursens namn i plural>`
+<3> Eftersom index ska visa en listning, hämtar vi alla messages från databasen
+<4> För att strukturera upp våra views skapar vi en mapp per resurs, och döper vy-filen till `<action>.erb` och sparar i mappen för resursen.
+
+[source, erb, linenums]
+.views/messages/index.erb
+----
+<% @messages.each do |message| %>
+	<p><%= message['content'] %></p>
+<% end %>
+----
+
+===  Action: `show` route: `/messages/:id` method: `get`
+
+`show` visar *en* specifik instans av den aktuella resursen, identifierad av dess `id`. Detta förutsätter att alla instanser av den aktuella resursen har ett unikt id.
+
+[source, ruby, linenums]
+.messages#show route i app.rb
+----
+...
+  # messages#show
+  get '/messages/:id' do |id| <1>
+    @message = db.execute('SELECT * FROM messages WHERE id = ?', id).first <2>
+    erb :'messages/show'
+  end
+...
+----
+<1> Routen för `show` är `/<resursens namn i plural>/<resursens id>`. Plocka ut `id`-parametern med `|id|`
+<2> Eftersom vi alltid får en array från `db.execute` och vi bara vill ha _en_ instans i värdet tar vi det första (och enda) elementet från arrayen.
+
+[source, erb, linenums]
+.views/messages/show.erb
+----
+<p><%= @message['content'] %></p>
+----
+
+=== Action: `new` route: `/messages/new` method: `get`
+
+`new` visar ett formulär för att skapa en ny instans av den aktuella resursen. Eventuellt kan man istället/även visa formuläret på `index` eller någon annanstans.
+
+[source, ruby, linenums]
+.messages#new route i app.rb
+----
+...
+  # messages#new
+  get '/messages/new' do <1>
+    erb :'messages/new' 
+  end
+...
+----
+<1> Routen för `new` är `/<resursens namn i plural>/new`.
+
+[WARNING] 
+====
+`new`-routen måste ligga *innan* show-routen i `app.rb`. 
+
+Varför då?
+==== 
+
+[source, erb, linenums]
+.views/messages/new.erb
+----
+<form action='/messages/' method='post'> <1>
+  <input type='text' name='content'></input> <2>
+  <button type='submit'>Send</button>
+</form>
+----
+<1> `action` och `method` för `new`-formuläret motsvarar `create`-routen (se nedan)
+<2> `name` anger namnet på parametern som skickas till `create`-routen (se nedan)
+
+=== Action: `create` route: `/messages` method: `post`
+
+`create` är routen new-formuläret postar datan till. Behöver sedan redirecta användaren till lämplig adress. 
+
+[source, ruby, linenums]
+.messages#create route i app.rb
+----
+...
+  # messages#create
+  post '/messages/' do <1>
+  	message = params['content'] <2>
+    query = 'INSERT INTO messages (message) VALUES (?) RETURNING *'
+    result = db.execute(query, message).first <3>
+    redirect "/messages/#{result['id']}" <4>
+  end
+...
+----
+<1> Routen för `create` är `/<resursens namn i plural>` med `post` som method.
+<2> Hämta ut datan som skickats från `new`-formuläret 
+<3> Spara i databasen, och lagra resultatet
+<4> Gör en `redirect` till `show` för den nya instansen (eller gör en `redirect` nån annan route)
+
+=== Action: `edit` route: `/messages/:id/edit` method: `get`
+
+`edit` visar ett formulär för att uppdatera en befintlig instans av den aktuella resursen. Eventuellt kan man istället/även visa formuläret på `show` eller någon annanstans.
+
+[source, ruby, linenums]
+.messages#edit route i app.rb
+----
+...
+  # messages#new
+  get '/messages/:id/edit' do |id| <1>
+    @message = db.execute('SELECT * FROM messages WHERE id = ?', id.to_i).first
+    erb :'messages/edit' 
+  end
+...
+----
+<1> Routen för `edit` är `/<resursens namn i plural>/<resursens id>/edit`.
+
+[source, erb, linenums]
+.views/messages/edit.erb
+----
+<form action='/messages/<%=@message['id']%>/update' method='post'> <1>
+  <input type='text' name='content' value='<%= @message['content']%>'></input> <2>
+  <button type='submit'>Send</button>
+</form>
+----
+<1> `action` och `method` för `edit`-formuläret motsvarar `update`-routen (se nedan)
+<2> `value` "förifyller" input-elementet med datan från backend).
+
+=== Action: `update` route: `/messages/:id/update` method: `post`
+
+`update` är routen edit-formuläret postar datan till. Behöver sedan redirecta användaren till lämplig adress.
+
+[source, ruby, linenums]
+.messages#edit route i app.rb
+----
+...
+  # messages#update
+  post '/messages/:id/update' do |id| <1>
+    message = params['content']
+    db.execute('UPDATE messages SET (content = ?) WHERE id = ?', message, id)
+    redirect "/messages/#{id}" <2>
+  end
+...
+----
+<1> Routen för `update` är `/<resursens namn i plural>/<resursens id>/update` med `post` som method.
+<2> Redirect till lämpligt ställe
+
+=== Action: `delete` route: `/messages/:id/delete method: `post
+
+`delete` är routen delete-formuläret postar datan till. Delete-formuläret är antagligen bara ett minimalt formulär runt en knapp och ligger antagligen inte i en egen vy-fil (men kanske i `index.erb` eller `show.erb`):
+
+[source, erb, linenums]
+.views/messages/index eller views/messages/show eller annat lämpligt view-fil
+----
+<form action='/messages/<%= @message['id'] %>/delete' method='post'> <1>
+  <button type="submit">DELETE</button>
+</form>
+----
+<1> `action` och `method` för `delete`-formuläret motsvarar `delete`-routen (se nedan)
+
+
+[source, ruby, linenums]
+.messages#edit route i app.rb
+----
+...
+  # messages#update
+  post '/messages/:id/update' do |id| <1>
+    message = params['content']
+    db.execute('UPDATE messages SET (message = ?) WHERE id = ?', message, id)
+		redirect "/messages/#{id}"
+  end
+...
+----
+<1> Routen för `delete` är `/<resursens namn i plural>/<resursens id>/delete` med `post` som method.
+

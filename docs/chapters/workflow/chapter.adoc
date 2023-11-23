@@ -1,0 +1,131 @@
+:imagesdir: chapters/workflow/images
+
+
+= Arbetsflöde
+
+[discrete]
+==== 0. Skriv ner vilka *resurser* applikationen hanterar och vad de har för attribut.
+
+Exemplet nedan utgår för en applikation där användare kan lägga upp och visa kod-snippets.
+
+Följ sen för varje resurs följande steg:
+
+[discrete]
+==== 1. Vilken *resurs* är det du ska jobba med?
+
+snippets
+
+[discrete]
+==== 2. Vad är *basrouten*  för resursen?
+
+`/snippets`
+
+[discrete]
+==== 3. Vilken *action* är det du ska skapa?
+
+`show`
+
+[discrete]
+==== 4. Surfa till den adress som är aktuell för den *resurs* och *action* som ska ske.
+
+Eftersom det är `show` som är action, behöver vi `id` för resursen. Vi testar med id 1 (detta förutsätter att resursen med id 1 redan finns i databasen, om inte, lägg till i `seed.rb` och seeda om.)
+Basrouten är `/snippets` alltså blir adressen vi ska surfa till `/snippets/1`
+
+När du surfar till adressen ger Sinatra dig en kod du kan bygga vidare på.
+
+[discrete]
+==== 5. Lägg till sinatras exempelkod i `app.rb`.
+
+[source, ruby, linenums]
+.app.rb
+----
+...
+  get '/snippets/1' do 
+    'Hello, World!'
+  end
+...
+----
+
+[discrete]
+==== 6. Testa om routen fungerar med exempelkoden genom att ladda om sidan i webbläsaren.
+
+Ser du "Hello, World!" i webbläsaren? 
+
+Om inte: Är `app.rb` sparad? Finns det någon annan _route_ tidigare som "krockar"?
+
+[discrete]
+==== 7. Skapa en `view` för routen och uppdatera route-koden att använda `view`-en och visa exempeldatan där istället.
+
+i `views/snippets/show.erb`
+
+[source, erb, linenums]
+.views/snippets/show.erb
+----
+  <%= @test %>
+----
+
+i `app.rb`
+
+[source, ruby, linenums]
+.app.rb
+----
+...
+  get '/snippets/1' do
+    @test = "Working?"
+    erb :'snippets/show'
+  end
+...
+----
+
+Ladda om webbsidan. Ser du "Working?" 
+
+[discrete]
+==== 8. I routen, lägg till den kod du tror du *egentligen* behöver.
+
+i `app.rb`
+
+[source, ruby, linenums]
+.app.rb
+----
+...
+  # snippets#show
+  get '/snippets/:id' do id
+    @snippet = db.execute('SELECT * FROM snippets WHERE id = ?', id.to_i).first
+    erb :'snippets/show'
+  end
+...
+----
+
+
+[discrete]
+==== 9. Om du pratar med databasen, skriv ut rå-datan i view-en innan du försöker jobba med den strukturerade datan.
+
+i `views/snippets/show.erb`
+
+[source, erb, linenums]
+.views/snippets/show.erb
+----
+<%= @snippet.inspect %>
+----
+
+Ser datan ut som du förväntar dig? Om du förväntar dig *ett* element, är det då ett element, eller är det en array?
+
+Om datan ser fel ut, gå tillbaks till routen och fundera på hur du behöver förändra hur du hämtar/manipulerar datan innan du visar den.
+
+[discrete]
+==== 10. Iterera över/visa den strukturerade datan i HTML på rätt sätt.
+
+i `views/snippets/show.erb`
+
+[source, erb, linenums]
+.views/snippets/show.erb
+----
+  <h1><%= @snippet['title'] %></h1>
+  <pre> <1>
+    <code><%= @snippet['code'] %></code> <2>
+  </pre>
+----
+<1> `pre`-element bevarar radbrytningar etc
+<2> `code`-element talar om för skärmläsare etc att innehållet är kod
+
+Ser sidan ut som du förväntar dig? Gå vidare till nästa resurs/action.
