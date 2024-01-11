@@ -16,6 +16,7 @@
 include::chapters/databases/chapter.adoc[leveloffset=+1]
 include::chapters/sql/chapter.adoc[leveloffset=+1]
 include::chapters/requests_and_routing/chapter.adoc[leveloffset=+1]
+include::chapters/cookies_encryption_and_sessions/chapter.adoc[leveloffset=+1]
 include::chapters/templates/chapter.adoc[leveloffset=+1]
 include::chapters/workflow/chapter.adoc[leveloffset=+1]
 include::chapters/filstruktur/chapter.adoc[leveloffset=+1]

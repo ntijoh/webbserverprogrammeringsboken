@@ -1,0 +1,160 @@
+:imagesdir: chapters/cookies_encryption_and_sessions/images
+
+
+= Kakor, kryptering och sessioner.
+
+För att bygga säkra webbapplikationer behöver man hålla koll på 5 begrepp: *kakor*, *sessioner*, *kryptering*, *hashning* och *saltning*
+
+.**HTTP är Stateless**.
+[NOTE]
+==== 
+HTTP (och därmed webbservrar som Sinatra) är *stateless*, dvs de har inget "minne" av tidigare requests, dvs varje requests behandlas i separation från alla andra requests. Detta innebär att en webbläsare inte har något sätt att veta om requests kommer från samma webbläsare. 
+
+Man har valt att göra HTTP stateless eftersom det skulle ta för mycket resurser (minne) på servern att "komma ihåg" alla klienter som är uppkopplade mot servern - en webbserver kan ju ha miljontals klienter som skickar requests till den.
+====
+
+
+== Kakor
+
+
+För att kunna lagra state, trots att HTTP är stateless har man hittat på kakor ("cookies").
+
+En kaka är data från servern som lagras i webbläsaren. Kakor skapas på servern och skickas till webbläsaren i ett `HTTP-Response`.
+
+Kakor tillhör alltid en *domän*, t.ex `http://fruitomatic.com`, eller `http://localhost:9292`. Om webbläsaren har en kaka som tillhör den domän som webbläsaren skickar en `HTTP-Request` till kommer kakan _alltid_ att skickas med, för varje request till den domänen.
+
+På servern kan man sen kolla på kakan, och baserat på vad den innehåller, välja att hantera requesten olika.
+
+.**Kakor tar plats**.
+[WARNING]
+==== 
+Eftersom kakor skickas med _varje_ request är det viktigt att inte lagra onödig data i kakan - dels blir det segare att skicka requesten, dels blir det mer data att tolka på servern. Oftast kommer man enbart lagra användarens id i kakan.
+====
+
+.**Kakor är okrypterade**.
+[WARNING]
+==== 
+Innehållet i en kaka är i klartext ("okrypterad"). Detta innebär att användaren kan läsa all information som står i kakan.
+
+image::cleartext_cookie.png[En kaka med data i klartext]
+====
+
+.**Kakor kan ändras av användaren**.
+[WARNING]
+==== 
+Användaren kan i webbläsaren ändra allt innehåll i en kaka. Om man t.ex. lagrar användarens id i kakan för att hålla koll på vilken användare som är inloggad kan användaren lätt ändra till en annan användares id och då kommer servern anta att kommande requests kommer från den användaren istället.
+
+image::edit_cookie.png[En kakas värden kan ändras i webbläsaren]
+====
+
+== Kryptering
+
+För att kunna lagra information i kakor, och samtidigt förhindra att användaren kan ändra (eller ens läsa) innehållet i kakan behöver vi kryptera innehållet i kakan.
+
+Förenklat kan man säga att vi tar det vi vill lagra i kakan, t.ex strängen "favourite_fruit => "apple" och krypterar den till en annan sträng, t.ex "fofavovouroritote_fofroruitot => apoppoplole". 
+
+.**Krypterade kakor är fortfarande läsbara**.
+[NOTE]
+==== 
+Om vi krypterar innehållet i kakan, kommer användaren fortfarande att kunna läsa innehållet i kakan, men hen kommer inte förstå vad den innehåller. 
+
+Användaren kan också fortfarande ändra kakans värde, men sannolikheten att hen skulle kunna lyckas ändra den krypterade strängen, till en annan _korrekt krypterad_ sträng, är så liten att man helt kan bortse från den (förutsatt att vi valt en tillräckligt säker krypteringsalgoritm).
+====
+
+== Sessioner
+
+För att hålla koll på _state_ för en besökare på en webapplikation använder man begreppet *session*.
+
+När en webbläsare första gången skickar en request till servern upprättar man en *session* för den webbläsaren (användaren).
+I sessionen kan man sen lagra information om användaren.
+
+I Sinatra använder man så kallade sessionskakor för att hålla koll på sessioner. En sessionskaka är en krypterad kaka som ska användas för att lagra information om användaren.
+
+
+[%linenums, ruby, highlight=3]
+.Konfigurera Sinatra att använda sessionskakor
+----
+class App < Sinatra::Base
+
+    enable :sessions
+    
+    ...
+
+end
+----
+
+Om man använder `enable :sessions` i Sinatra kommer varje besökare automagiskt få en krypterad kaka vid första besöket.
+
+.En sessionskaka från Sinatra
+image::session_cookie.png[En kaka med data i klartext]
+
+För att läsa av och modifiera innehållet i en sessionskaka använder man variabeln `session`:
+
+[%linenums, ruby]
+.Använda sessionskakor i Sinatra
+----
+class App < Sinatra::Base
+
+  enable :sessions
+    
+  get '/' do
+    session[:user_id] = 1 <1>
+  end
+
+  get '/home' do
+    user_id = session[:user_id] <2>
+    ... <3>
+  end
+
+end
+----
+<1> Lagra data i sessionskakan.
+<2> Läs data från sessionskakan.
+<3> Använd datan från sessionskakan, t.ex för att hämta en användare från databasen.
+
+Sinatra avkrypterar och krypterar automagiskt sessionskakorna. Observera återigen att kakan kommer skickas med från webbläsaren för varje request, så det är viktigt att lagra så lite information som möjligt i kakan.
+
+== Hashning
+
+Hashning är ett kryptografiskt begrepp som innebär att man kan kryptera något, som sen inte går att avkryptera. Man kan se det som en envägskryptering. Skillnaden mellan kryptering och hashning är alltså att kryptering går att avkryptera (om man har rätt nyckel).
+
+Sessionskakan måste vara krypterad så vi kan läsa av den, men om vi ska lagra användares lösenord ska de hashas - så vi inte kan läsa dem.
+
+Men, kanske någon tänker nu, om vi inte kan läsa av lösenorden, hur ska vi då kunna kolla om någon anger rätt lösenord för att logga in? Svaret är att vi provar att hasha det de skrev in, och kontrollerar om resultatet av det hashade inskrivna lösenordet matchar det hashade lösenordet vi lagrat i databasen.
+
+== Salting
+
+Eftersom samma input till en hashningsalgoritm alltid ger samma input räcker inte hashning av lösenorden. (t.ex skulle input "hemligt" till en tänkt hashningsalgoritm _alltid_ ge "1a2806367d23c7884dfde273882ad6a9" som output). 
+
+
+För att kunna knäcka lösenord skulle man lätt skriva ett program som hashar alla vanliga lösenord, och sen skulle man bakvägen kunna se vilka lösenord som lagrats.
+
+För att öka säkerheten använder man en så kallad *password salt*. En salt är en slumpad sträng som man lägger till på klartextlösenordet _innan_ det hashas.
+
+Exempelvis skulle vi kunna ta "hemligt", lägga till den slumpade strängen "abc123", få "hemligtabc123" och sen hasha den sammanslagna strängen och få resultatet "ced772b8bee4a1b208efb5bed6f86651". Om vi alltid slumpar olika salt kommer lösenorden, även om de är likadana, få olika hashingsresultat.
+
+Nu har vi ett nytt problem: för att kunna kolla om ett inmatat lösenord matchar en lagrad saltad hash måste vi ju veta vad salten var. Lösningen är att lägga till salten i i hashen, t.ex "ced772b8bee4a1b208efb5bed6f86651+abc123". Vi kan då plocka ut salten ur hashen, lägga till den till det inmatade lösenordet, och sen se om den genererade hashen matchar den lagrade hashen utan den pålagda saltningen.
+
+
+[plantuml,svg,role=flowchart]
+.Skapande av hashade saltade lösenord
+....
+:Ta emot ett lösenord i klartext \n ("hemligt");
+:Slumpa en salt \n ("abc123");
+:Lägg till salten på klartextlösenordet \n ("hemligtabc123");
+:Hasha lösenord+salt med lämplig hashningsalgoritm \n ("ced772b8bee4a1b208efb5bed6f86651");
+:Lägg till salten på det hashade lösenordet \n ("ced772b8bee4a1b208efb5bed6f86651+abc123");
+:Lagra det saltade hashade lösenordet med salten i databasen;
+....
+
+
+[plantuml,svg,role=flowchart]
+.Kontroll av inmatade lösenord 
+....
+:Ta emot ett användarnamn och lösenord i klartext \n ("hemligt");
+:Hämta användarens saltade hashade lösenord från databasen \n ("ced772b8bee4a1b208efb5bed6f86651+abc123");
+:Extrahera salten från användarens lagrade saltade lösenord \n ("abc123");
+:Lägg till salten på det inmatade klartextlösenordet \n ("hemligtabc123");
+:Hasha lösenord+salt med lämplig hashningsalgoritm \n ("ced772b8bee4a1b208efb5bed6f86651");
+:Jämför den genererade hashen med det lagrade saltade hashen utan salt \n ("ced772b8bee4a1b208efb5bed6f86651 == ced772b8bee4a1b208efb5bed6f86651");
+....

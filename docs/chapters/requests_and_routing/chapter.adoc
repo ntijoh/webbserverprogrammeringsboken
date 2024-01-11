@@ -473,3 +473,114 @@ Varför då?
 ----
 <1> Routen för `delete` är `/<resursens namn i plural>/<resursens id>/delete` med `post` som method.
 
+== Registrering & Inloggning
+
+[WARNING]
+====
+Läs först link:#_kakor_kryptering_och_sessioner[Kakor, kryptering och sessioner]
+====
+
+För att använda säker inloggning behöver man kunna hasha användares lösenord. Standardlösningen för Sinatra är att använda `bcrypt`:
+
+[source, ruby, linenums, highlight=7]
+.Gemfile
+----
+source 'https://rubygems.org'
+
+gem 'thin'
+gem 'sinatra'
+gem 'rerun'
+gem 'sqlite3'
+gem 'bcrypt'
+----
+
+Lägg till `bcrypt` i din Gemfile och kör `bundle install`.
+
+Skapa en tabell för användare med åtminstone användarnamn och lösenord.
+
+=== Registrering
+
+Skapa ett formulär för registrering av användare.
+
+Skapa en route för registreringsformuläret 
+
+I routen, använd `bcrypt` för att hasha lösenordet innan det lagras i databasen:
+
+[source, ruby, linenums, highlight=7]
+.I registreringsrouten
+----
+...
+  cleartext_password = params['password'] <1>
+  hashed_password = Bcrypt::Password.create(cleartext_password) <2>
+  #spara användare och hashed_password till databasen
+...
+----
+<1> Hämta det inskrivna lösenordet från params
+<2> Hasha det inskrivna lösenordet.
+
+Bcrypt kommer automagiskt salta lösenordet och lägga till salten i den hashade strängen.
+
+=== Inloggning 
+
+Skapa ett formulär för inlogging
+
+Skapa en route för inloggningsformuläret
+
+I routen, använd `bcrypt` för att jämföra det inmatade lösenordet med det sparade saltade och hashade lösenordet:
+
+
+[source, ruby, linenums, highlight=7]
+.I inloggningsrouten
+----
+...
+  username = params['username']
+  cleartext_password = params['password'] <1>
+  
+  #hämta användare och lösenord från databasen med hjälp av det inmatade användarnamnet.
+  user = db.execute('SELECT * FROM users WHERE username = ?', username).first
+
+  #omvandla den lagrade saltade hashade lösenordssträngen till en riktig bcrypt-hash
+  password_from_db = Bcrypt.new(user['password'])
+
+  #jämför lösenordet från databasen med det inmatade lösenordet
+  if password_from_db == clertext_password <1>
+    session[:user_id] = user['id'] <2>
+    ... <3>
+  else 
+    ... <4>
+  end
+...
+----
+<1> Bcrypt kommer automagiskt extrahera salten från det lagrade databaset, salta & hasha klartextlösenordet och jämföra resultatet
+<2> Lösenordet stämde, lagra i sessionskakan.
+<3> Övrig kod som behöver ske.
+<4> Lösenordet stämde inte, gör något annat.
+
+=== Autorisering (kontroll av användare och rättigheter)
+
+[source, ruby, linenums]
+.I *alla* routes där du behöver veta om någon/vem är inloggad:
+----
+...
+  user_id = session[:user_id] <1>
+  # Kod för att kontrollera om användaren finns, och/eller har rättighet att se det som ska visas
+...
+----
+<1> Hämta användaren från sessionen
+
+=== Utloggning
+
+1. Skapa ett formulär för utloggning (innehåller antagligen enbart en knapp).
+
+2. Skapa en route för utloggningsformuläret 
+
+[source, ruby, linenums]
+.I utloggningsrouten
+----
+...
+  session.destroy
+...
+----
+
+
+
