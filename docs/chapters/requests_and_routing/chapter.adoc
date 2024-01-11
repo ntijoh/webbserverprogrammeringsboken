@@ -32,37 +32,35 @@ För att beskriva hur en HTTP Request/Response går till brukar man använda htt
 Sekvensdiagram beskriver hur olika _komponenter_ (t.ex webbläsare och sinatra-server) skickar "meddelanden" till varandra. Meddelanden visas som text ovanför pilar som går från sändare till mottagare.
 
 .Ett utförligt sekvensdiagram som beskriver en lyckad request efter resursen /fruits
-[mermaid,theme=neutral]
+[plantuml,svg,role=sequence]
 ....
-sequenceDiagram
-    participant User
-    participant Browser
-    participant Rack
-    participant Sinatra
-    User->>Browser: Go to <br>'https://fruit-o-matic.com/fruits'
-    Browser->>Rack: HTTP Request <br> 'GET /fruits HTTP/1.1...'
-    Rack->Sinatra: get('/fruits')
-    Sinatra-->>Sinatra: Match against routes in app.rb
-    Sinatra-->>Sinatra: Render template fruits/index.erb
-    Sinatra->>Rack: 200, '!doctype html <html><head>...'
-    Rack->>Browser: HTTP RESPONSE <br> 'HTTP/1.1 200 OK...'
-    Browser-->>Browser: Render Page
-    Browser->>User: Rendered Page
-    User-->>User: Wow, such beautiful fruits!
+  participant User
+  participant Browser
+  participant Rack
+  participant Sinatra
+  User->>Browser: Go to \n'https://fruit-o-matic.com/fruits'
+  Browser->>Rack: HTTP Request \n 'GET /fruits HTTP/1.1...'
+  Rack->Sinatra: get('/fruits')
+  Sinatra-->>Sinatra: Match against routes in app.rb
+  Sinatra-->>Sinatra: Render template fruits/index.erb
+  Sinatra->>Rack: 200, '!doctype html <html><head>...'
+  Rack->>Browser: HTTP RESPONSE \n 'HTTP/1.1 200 OK...'
+  Browser-->>Browser: Render Page
+  Browser->>User: Rendered Page
+  User-->>User: Wow, such beautiful fruits!
 ....
 
 Sekvensdiagrammet ovan är onödigt detaljerat, i fortsättningen kommmer vi inte visa de komponenter vi ändå inte har kontroll över. Ett sekvensdiagram för motsvarande aktivitet ser då ut som nedan:
 
 .Ett mer kompakt sekvensdiagram som beskriver en lyckad request efter resursen /fruits
-[mermaid,theme=neutral]
+[plantuml,svg,role=sequence]
 ....
-sequenceDiagram
-    participant Client
-    participant App
-    Client->>App:  GET /fruits
-    App-->>App: Match route
-    App-->>App: Render template
-    App->>Client: 200, resource
+  participant Client
+  participant App
+  Client->>App:  GET /fruits
+  App-->>App: Match route
+  App-->>App: Render template
+  App->>Client: 200, resource
 ....
 
 Det finns två typer av `HTTP Requests` som en webbläsare kan skicka (det finns egentligen fler, men det är bara dessa två som är relevanta för kursen Webbserverprogrammering 1):
@@ -206,44 +204,35 @@ För att visa resursen som skapats när en användare skickat in data via ett fo
 
 Detta görs genom att servern, efter den behandlat datan från formuläret, skickar tillbaks en `Response` som talar om vart webbläsaren ska skicka en `GET`-request. Webbläsaren skickar sen automagiskt en `GET`-request dit servern specificerat.
 
-[mermaid,theme=neutral]
+[plantuml,svg,role=sequence]
 .GET-POST-Redirect-cykeln i ett Sekvensdiagram
 ....
-sequenceDiagram
-    participant Client
-    participant App
-    Client->>App:  GET /fruits
-    App-->>App: Match route
-    App-->>App: Render template (with form)
-    App->>Client: 200, resource (containing form)
-    Client-->>Client: Fills out form
-    Client->>App: POST '/fruits' (Submits form with form data)
-    App-->>App: Match route
-    App-->>App: Use form data (send to database?)
-    App->>Client: 302, redirect, "/fruits/<<id of new fruit>>"
-    Client->>App: GET /fruits/<<id of new fruit>>
-    App-->>App: Match route
-    App-->>App: Talk with DB, render template 
-    App->>Client: 200, resource
+  participant Client
+  participant App
+  Client->>App:  GET /fruits
+  App-->>App: Match route
+  App-->>App: Render template (with form)
+  App->>Client: 200, resource (containing form)
+  Client-->>Client: Fills out form
+  Client->>App: POST '/fruits' (Submits form with form data)
+  App-->>App: Match route
+  App-->>App: Use form data (send to database?)
+  App->>Client: 302, redirect, "/fruits/<<id of new fruit>>"
+  Client->>App: GET /fruits/<<id of new fruit>>
+  App-->>App: Match route
+  App-->>App: Talk with DB, render template 
+  App->>Client: 200, resource
 ....
 
-[mermaid,theme=neutral]
+[plantuml,svg,role=flowchart]
 .GET-POST-Redirect-cykeln som ett flödesschema
 ....
-flowchart TD
-
-id0[Client requests resource]
-id1[Server renders resource with form]
-id2[Client fills out and submits form]
-id3[Server processes data from form]
-id4[Server sends redirect response]
-id5[Client requests redirected resource]
-id0 --> id1
-id1 --> id2
-id2 --> id3
-id3 --> id4
-id4 --> id5
-id5 --> id1
+:Client requests resource;
+:Server renders resource with form;
+:Client fills out and submits form;
+:Server processes data from form;
+:Server sends redirect response;
+:Client requests redirected resource;
 ....
 
 == Formulärbehandlande routes i Sinatra
