@@ -511,7 +511,7 @@ I routen, använd `bcrypt` för att hasha lösenordet innan det lagras i databas
 ----
 ...
   cleartext_password = params['password'] <1>
-  hashed_password = Bcrypt::Password.create(cleartext_password) <2>
+  hashed_password = BCrypt::Password.create(cleartext_password) <2>
   #spara användare och hashed_password till databasen
 ...
 ----
