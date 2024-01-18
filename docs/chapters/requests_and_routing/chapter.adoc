@@ -540,7 +540,7 @@ I routen, använd `bcrypt` för att jämföra det inmatade lösenordet med det s
   user = db.execute('SELECT * FROM users WHERE username = ?', username).first
 
   #omvandla den lagrade saltade hashade lösenordssträngen till en riktig bcrypt-hash
-  password_from_db = Bcrypt.new(user['password'])
+  password_from_db = BCrypt::Password.new(user['password'])
 
   #jämför lösenordet från databasen med det inmatade lösenordet
   if password_from_db == clertext_password <1>
