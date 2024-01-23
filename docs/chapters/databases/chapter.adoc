@@ -720,7 +720,7 @@ Om man inte kan komma på vad man ska döpa relationen kan man döpa den till de
 | 3  | 3  
 |========
 
-
+////
 [graphviz, ./img/entities2, svg, layout="fdp"]
 ----
 graph ER {
@@ -771,3 +771,4 @@ graph ER {
 
 }
 ----
+////
