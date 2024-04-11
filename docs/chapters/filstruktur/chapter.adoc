@@ -99,3 +99,92 @@ I `public`-mappen lägger man statiska resurser som bilder, css och js - oftast 
 
 I `views`-mappen lägger man sina templates/mallar - ofta i separata undermappar så det inte blir för rörigt när man har flera resurser i sin app.
 
+== Moduler
+
+Efter ett tag, när applikationen blir större, blir det rörigt att ha all kod i `app.rb`. Då behöver man bryta ut koden i moduler.
+
+En modul är en fil som innehåller kod (funktioner) som hör ihop. 
+
+I Webbserverprogrammering 1 kommer vi att använda moduler för att bryta ut kod som pratar med databasen. Vi kommer använda en modul för varje tabell i databasen.
+
+Genom att använda moduler kan vi gå från kod i `app.rb` som ser ut så här:
+
+[source, ruby, linenums]
+.app.rb
+----
+class App < Sinatra::Base
+
+    def db
+        if @db == nil
+            @db = SQLite3::Database.new('./db/db.sqlite')
+            @db.results_as_hash = true
+        end
+        return @db
+    end
+
+    ...
+
+    get '/fruits' do
+        @user = db.execute('SELECT * FROM users WHERE id = ?', session[:user_id]).first
+        @fruits = db.execute('SELECT * FROM fruits')
+        erb :'fruits/index'
+    end
+end
+----
+
+Till kod som ser ut såhär:
+
+[source, ruby, linenums]
+.app.rb
+----
+require_relative 'models/user'
+require_relative 'models/fruit'
+
+class App < Sinatra::Base
+
+    get '/fruits' do
+        @user = User.find(session[:user_id])
+        @fruits = Fruit.all
+        erb :'fruits/index'
+    end
+end
+----
+
+Detta gör att koden blir mer lättläst och underhållbar, man tappar inte bort sig bland alla SQL-frågor och databasoperationer i `app.rb`.
+
+För att åstadkomma detta skapar vi en mapp som heter `models` och lägger våra moduler där (moduler som pratar med databasen kallas traditionellt för  "models").
+
+En modul är en fil som innehåller en `module`-deklaration:
+
+[source, ruby, linenums]
+.models/fruit.rb
+----
+module Fruit <1>
+
+    def self.all <2>
+        db.execute('SELECT * FROM fruits')
+    end
+
+    def self.find(id) <2>
+        db.execute('SELECT * FROM fruits WHERE id = ?', id).first
+    end
+
+    def self.most_popular(amount) <2>
+        db.execute('SELECT * FROM fruits ORDER BY popularity DESC LIMIT ?', amount)
+    end
+
+    def self.db <3>
+        if @db == nil
+            @db = SQLite3::Database.new('./db/db.sqlite')
+            @db.results_as_hash = true
+        end
+        return @db
+    end
+
+end
+----
+<1> Skapar en modellen `Fruit` i modulen `Fruit`.
+<2> Skapar metoderna `Fruit.all`, `Fruit.find(id)` och `Fruit.most_popular(amount)`, som vi kan anropa från `app.rb` (en metod är en funktion som är definerad i en modul).
+<3> Koden för att skapa databasanslutningen flyttas från `app.rb`.
+
+Namnet på metoderna (`all`, `find`, `most_popular`) är godtyckliga, de kan heta vad som helst, men det är en bra idé att använda namn som beskriver vad metoden gör.
