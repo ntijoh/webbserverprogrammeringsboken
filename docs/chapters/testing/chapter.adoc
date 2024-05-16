@@ -15,7 +15,7 @@ Cypress ska installeras i Windows, inte i WSL, eftersom det inte fungerar att k�
 
 === Installera Node.js
 
-För att köra Cypress behöver du först installera node.js. Gå till https://nodejs.org/ och ladda ner och installera den senaste versionen av Node.js.
+För att köra Cypress behöver du först installera node.js. Gå till https://nodejs.org/en/download och ladda ner och installera den senaste versionen av Node.js.
 
 Om du är osäker på hur du ska installera Node.js kan du följa instruktionerna på https://www.geeksforgeeks.org/installation-of-node-js-on-windows/
 
@@ -67,7 +67,7 @@ Testet körs nu i Cypress-fönstret.
 
 image::7.png[]
 
-I din mappstruktur kommer det nu att skapas en mapp som heter `cypress`, tested du skapade i cypress-fönstret ligger i `cypress/e2e`. Om du öppnar filen i VS Code ser du testet som kördes:
+I din mappstruktur kommer det nu att skapas en mapp som heter `cypress`, testet som skapades i cypress-fönstret ligger i `cypress/e2e`. Om du öppnar filen i VS Code ser du testet som kördes:
 
 [source,js]
 ----
@@ -150,7 +150,7 @@ cy.get('.item').should('have.length', 3) <4>
 
 ==== Skapas rätt saker när man fyller i formulär?
 
-För att fylla i formulär används cy.get och .type tillsammans. .type tar en sträng som argument och skriver in den i det element som matchar css-selektorn.
+För att fylla i formulär används `cy.get` och `.type` tillsammans. `.type` tar en sträng som argument och skriver in den i det element som matchar css-selektorn.
 
 .Exempel
 [source,js]
