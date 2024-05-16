@@ -1,0 +1,205 @@
+:imagesdir: chapters/testing/images
+
+= Automatisk testning med Cypress
+
+När man utvecklar en applikation testar man kontinuerligt att den fungerar som den ska, genom att manuellt ladda om sidan och se att det man just skapat fungerar som det ska. Detta är dock inte en hållbar lösning i längden, då det tar mycket tid och är lätt att missa något. 
+
+Det är också vanligt att man, när man gör en ändring som man *tror* inte påverkar något annat, råkar förstöra något annat i applikationen, utan att man märker det.
+
+Därför är det viktigt att automatisera testningen av applikationen. Det finns många olika verktyg för att göra detta. I den här kursen kommer vi använda Cypress, som är ett verktyg för att skriva och köra tester på webbapplikationer.
+
+== Installation
+
+Cypress ska installeras i Windows, inte i WSL, eftersom det inte fungerar att köra grafiska program i WSL. Alla instruktioner nedan ska alltså köras i Windows.
+
+
+=== Installera Node.js
+
+För att köra Cypress behöver du först installera node.js. Gå till https://nodejs.org/ och ladda ner och installera den senaste versionen av Node.js.
+
+Om du är osäker på hur du ska installera Node.js kan du följa instruktionerna på https://www.geeksforgeeks.org/installation-of-node-js-on-windows/
+
+=== Installera Cypress
+
+När du har installerat Node.js kan du installera Cypress genom att köra följande kommando i terminalen:
+
+[source,sh]
+----
+npm install -g cypress
+----
+
+== Starta Cypress
+
+När du har installerat Cypress kan du starta det genom att köra följande kommando i terminalen (i src-mappen i ditt projekt):
+
+[source,sh]
+----
+cypress open
+----
+
+Cypress öppnar nu följande fönster:
+
+image::1.png[]
+
+Klicka på "browse manually" och leta reda på src-mappen för ditt projekt.
+
+Välj E2E-testing (E2E betyger End-to-End, dvs att allt testas, från databas till användargränssnitt)
+
+image::2.png[]
+
+Klicka på "Continue"
+
+image::3.png[]
+
+Välj "Start E2E testing in Chrome"
+
+image::4.png[]
+
+Välj "Create new spec"
+
+image::5.png[]
+
+Klicka på "Run the spec"
+
+image::6.png[]
+
+Testet körs nu i Cypress-fönstret.
+
+image::7.png[]
+
+I din mappstruktur kommer det nu att skapas en mapp som heter `cypress`, tested du skapade i cypress-fönstret ligger i `cypress/e2e`. Om du öppnar filen i VS Code ser du testet som kördes:
+
+[source,js]
+----
+describe('template spec', () => {
+  it('passes', () => {
+    cy.visit('https://example.cypress.io')
+  })
+})
+----
+
+== Skriva egna tester
+
+Ett test består av två delar: en `describe`-funktion och en `it`-funktion. `describe`-funktionen beskriver vad testet handlar om, och `it`-funktionen beskriver vad som ska testas.
+
+I exemplet ovan beskriver `describe`-funktionen att det är ett test för en template, och `it`-funktionen beskriver att testet ska passera om sidan `https://example.cypress.io` laddas.
+
+`describe`` gör inget mer än att det grupperar massa texter. Argumentet som skickas till describe används bara för att visa vilka test som hör ihop.
+
+`it` är det som faktiskt testar något. Argumentet som skickas till `it` används för att visa vad som testas i cypress-fönstret.
+
+image::8.png[]
+
+=== Ett första test
+
+[source,js]
+----
+beforeEach(() => { <1>
+  cy.visit('http://localhost:9292/thesaurus') 
+})
+
+describe('Thesaurus', () => { <2>
+  
+  it('shows a list of words', () => { <3>
+    cy.get('li').should('exist')
+  })
+
+  it('has links to words', () => { <4>
+    cy.get('li a').then(words => {
+        const word = words[0]
+        cy.visit(word.href)
+    })
+  })
+  
+  it('clicking a word shows a list of related words', () => { <5>
+    cy.get('a').contains('abbey').click();
+    cy.contains('church')
+    cy.contains('monastery')
+  })
+  
+})
+----
+<1> `beforeEach` körs innan varje `it`. Här besöker vi sidan som vi vill testa.
+<2> `describe`-funktionen beskriver att det är ett test för thesaurus.
+<3> `it`-funktionen beskriver att testet ska passera om det finns en lista (förhoppningsvis med ord).
+<4> `it`-funktionen beskriver att testet ska passera om det finns en länk till ett ord
+<5> `it`-funktionen beskriver att testet ska passera om det går att klicka på ett ord och få upp en lista med relaterade ord
+
+=== Vanliga saker att testa
+
+==== Visas rätt sak på skärmen?
+
+Det finns två sätt att testa om rätt sak visas på skärmen: `cy.contains` och `cy.get`.
+
+`cy.get` tar en css-selektor som argument. Cypress kommer att leta efter ett element som matchar css-selektorn i DOM:en. Om det finns en matchning kommer testet att passera.
+
+`cy.contains` tar en sträng som argument. Cypress kommer att leta efter en matchning för strängen i DOM:en. Om det finns en matchning kommer testet att passera.
+
+.Exempel
+[source,js]
+----
+cy.contains('Login') <1>
+cy.get('button').contains('Login') <2>
+cy.get('nav form#logout button').should('have.text', 'Logout') <3>
+cy.get('.item').should('have.length', 3) <4>
+----
+<1> Testar om texten 'Login' finns någonstans på sidan
+<2> Testar om det finns en knapp med texten 'Login' någonstans på sidan
+<3> Testar om det finns en knapp med texten 'Logout' i en form med id logout i en nav
+<4> Testar om det finns tre element med klassen 'item' på sidan
+
+==== Skapas rätt saker när man fyller i formulär?
+
+För att fylla i formulär används cy.get och .type tillsammans. .type tar en sträng som argument och skriver in den i det element som matchar css-selektorn.
+
+.Exempel
+[source,js]
+----
+cy.get('input[name="comment"]').type('This is my comment') <1>
+cy.get('form').submit() <2>
+cy.contains('This is my comment') <3>
+----
+<1> Skriver in texten 'This is my comment' i ett input-element med namnet 'comment'
+<2> Skickar formuläret
+<3> Testar om texten 'This is my comment' finns någonstans på sidan (som man skickats till efter formuläret skickats)
+
+==== Fungerar inloggnignsfunktionen?
+
+.Exempel
+[source,js]
+----
+cy.get('input[name="username"]').type('admin')
+cy.get('input[name="password"]').type('password')
+cy.get('form').submit()
+cy.contains('Welcome admin')
+----
+
+.Exempel
+[source,js]
+----
+cy.get('button.logout'].click()
+cy.contains('Logga in')
+----
+
+==== Fungerar länkar?
+
+.Exempel
+[source,js]
+----
+cy.get('a').contains('Home').click()
+cy.contains('Welcome to our website')
+cy.href().should('eq', 'http://localhost:9292/')
+----
+
+==== Fungerar rättighetskontroller?
+
+.Exempel
+[source,js]
+----
+cy.get('input[name="username"]').type('notadmin')
+cy.get('input[name="password"]').type('password')
+cy.get('form').submit()
+
+cy.visit('http://localhost:9292/admin')
+cy.contains('You do not have permission to access this page')
+----
