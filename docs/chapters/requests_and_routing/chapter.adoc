@@ -438,7 +438,7 @@ Varför då?
   # messages#update
   post '/messages/:id/update' do |id| <1>
     message = params['content']
-    db.execute('UPDATE messages SET (content = ?) WHERE id = ?', message, id)
+    db.execute('UPDATE messages SET content = ? WHERE id = ?', message, id)
     redirect "/messages/#{id}" <2>
   end
 ...
