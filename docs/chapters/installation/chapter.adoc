@@ -61,7 +61,5 @@ Användarnamn och lösenord för WSL-imagen: `wsl`
 
 Installera följande extensions:
 
-* Ruby (av Peng Lv)
+* Ruby LSP (av Shopify)
 * erb (av Craig Maslowski)
-* Slim (av Siang Lim )
-* Ruby Solargraph (av Castwide)
