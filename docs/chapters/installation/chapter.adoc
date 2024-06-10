@@ -17,7 +17,7 @@ Därför är de flesta guider och bibliotek (samlingar med kod som utvecklare ka
 Eftersom Windows inte är ett linuxkompatibelt operativsystem kommer vi installera WSL - Windows Subsystem for Linux.
 WSL är ett sätt att köra virtuella Linuxmaskiner parallelt med Windows.
 
-https://drive.google.com/file/d/1mlI0Yr1ehERsMyb7Ed0RRuG_zm8KeBJ5/view?usp=drive_link[Ladda ner kursens Linux-image] (finns även i Classroom). Spara filen som wsp.tar i mappen du skapat för kursen.
+https://drive.google.com/file/d/1HA6PBlPSEO4k7ZggXLCNBvvMcA45jhXN/view?usp=drive_link[Ladda ner kursens Linux-image] (finns även i Classroom). Spara filen som wsp.tar i mappen du skapat för kursen.
 
 Starta Windows Terminal som administratör (högerklicka på ikonen och väl "Starta som Administratör")
 Navigera till mappen i Windows Terminal och kör nedanstående kommandon, ett i taget.
