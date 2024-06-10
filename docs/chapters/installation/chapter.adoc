@@ -35,11 +35,12 @@ wsl --update # <3>
 
 Om `wsl --update` inte fungerar (märks genom att bara instruktionerna för hur wsl används skrivs ut) har du en för gammal version av Windows. Hämta uppdateringar genom att
 
-1. Öppna `Inställningar` > `Updateringar & Säkerhet` > `Windows Update`
-2. Klicka på "Avancerade Alternativ" (längst ner)
-3. Sätt på "Hämta uppdateringar för andra Microsoft-produkter när jag uppdaterar Windows"
-4. Gå tillbaks till föregående skärm i inställningar och Klicka på "Check for updates", "Ladda ner" och vänta på att uppdateringarna laddas ner och installeras.
-5. Starta om Windows en eller flera gånger allteftersom du blir ombedd. Detta kan ta låång tid och även misslyckas. Prata med mig i så fall.
+1. Se till att Hyper-V och WSL är igång: Kontrollpanelen > Program > Aktivera eller inaktivera Windowsfunktioner
+2. Öppna `Inställningar` > `Updateringar & Säkerhet` > `Windows Update`
+3. Klicka på "Avancerade Alternativ" (längst ner)
+4. Sätt på "Hämta uppdateringar för andra Microsoft-produkter när jag uppdaterar Windows"
+5. Gå tillbaks till föregående skärm i inställningar och Klicka på "Check for updates", "Ladda ner" och vänta på att uppdateringarna laddas ner och installeras.
+6. Starta om Windows en eller flera gånger allteftersom du blir ombedd. Detta kan ta låång tid och även misslyckas. Prata med mig i så fall.
 
 Slutligen
 
