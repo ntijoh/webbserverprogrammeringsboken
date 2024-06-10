@@ -59,20 +59,6 @@ Användarnamn och lösenord för WSL-imagen: `wsl`
 [discrete]
 == Visual Studio Code
 
-[discrete]
-=== Extensions
-
-Installera följande extension: `Remote Development` (av Microsoft).
-
-Koppla upp Visual Studio Code mot wsl:
-
-image::vsc1.png[Koppla upp mot WSL]
-
-Du bör sen se `WSL:WSP` längst ner till vänster:
-
-image::vsc2.png[Uppkopplad mot WSL]
-
-
 Installera följande extensions:
 
 * Ruby (av Peng Lv)
