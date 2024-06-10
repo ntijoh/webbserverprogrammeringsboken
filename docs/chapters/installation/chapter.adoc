@@ -51,21 +51,10 @@ Om `wsl --update` inte fungerar (märks genom att bara instruktionerna för hur 
 5. Gå tillbaks till föregående skärm i inställningar och Klicka på "Check for updates", "Ladda ner" och vänta på att uppdateringarna laddas ner och installeras.
 6. Starta om Windows en eller flera gånger allteftersom du blir ombedd. Detta kan ta låång tid och även misslyckas. Prata med mig i så fall.
 
-Slutligen
-
-[source, powershell]
-----
-wsl --set-default-version 2 # <1>
-wsl --unregister Ubuntu # <2>
-wsl --import WSP . .\wsp.tar # <3>
-----
-<1> Använd WSL version 2 (den senaste)
-<2> Avinstallera Ubuntu (om du redan haft det installerat)
-<3> Installera den förkonfigurerade Linuxmaskinen
-
-(Verkligen) slutligen:
+Slutligen:
 
 Starta den virtuella maskinen: `wsl`.
+Användarnamn och lösenord för WSL-imagen: `wsl`
 
 [discrete]
 == Visual Studio Code
