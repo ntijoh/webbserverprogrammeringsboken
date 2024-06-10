@@ -24,14 +24,23 @@ Navigera till mappen i Windows Terminal och kör nedanstående kommandon, ett i 
 
 [source, powershell] 
 ----
-dism /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart # <1>
-dism /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart # <2>
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart <1>
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart <2>
 
-wsl --update # <3>
+wsl --update <3>
+wsl --set-default-version 2
+wsl --unregister Ubuntu
+
+wsl --import WSP . .\wsp.tar <4>
+
+netsh interface portproxy add v4tov4 listenport=9292 listenaddress=0.0.0.0 connectport=9292 connectaddress=(wsl hostname -I) <5>
+
 ----
 <1> Aktivera WSL
 <2> Aktivera stöd för Virtuella Maskiner
-<3> Installera senaste versionen av WSL
+<3> Installera senaste versionen av WSL, ställ in rätt version + avinstallera ev. tidigare versioner av Ubuntu
+<4> Sökvägen till WSP-imagen
+<5> Gör så att datorn forwardar porten till WSP
 
 Om `wsl --update` inte fungerar (märks genom att bara instruktionerna för hur wsl används skrivs ut) har du en för gammal version av Windows. Hämta uppdateringar genom att
 
