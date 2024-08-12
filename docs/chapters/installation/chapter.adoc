@@ -2,6 +2,8 @@
 
 = Installation och konfigurering
 
+Börja med att göra alla uppdateringar i Windows update.
+
 [discrete]
 == Windows Terminal
 
