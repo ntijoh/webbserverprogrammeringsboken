@@ -24,6 +24,8 @@ https://drive.google.com/file/d/1HA6PBlPSEO4k7ZggXLCNBvvMcA45jhXN/view?usp=drive
 Starta Windows Terminal som administratör (högerklicka på ikonen och väl "Starta som Administratör")
 Navigera till mappen i Windows Terminal och kör nedanstående kommandon, ett i taget.
 
+Kan du inte starta som Administratör måste du lägga till ditt konto i Windows så du har rättigheter att köra som admin.
+
 [source, powershell] 
 ----
 dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart <1>
